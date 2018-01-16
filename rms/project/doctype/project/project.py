@@ -27,6 +27,8 @@ class Project(Document):
 			task_map = {
 				"title": task.subject,
 				"status": task.status,
+				"start_date": task.exp_start_date,
+				"end_date": task.exp_end_date,
 				"description": task.description,
 				"task_id": task.name,
 				"task_weight": task.task_weight
@@ -79,6 +81,8 @@ class Project(Document):
 			task.update({
 				"subject": t.title,
 				"status": t.status,
+				"exp_start_date": t.start_date,
+				"exp_end_date": t.end_date,
 				"description": t.description,
 				"task_weight": t.task_weight
 			})

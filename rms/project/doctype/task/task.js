@@ -3,7 +3,7 @@
 
 frappe.provide("rms.project");
 
-cur_frm.add_fetch("project", "company", "company");
+cur_frm.add_fetch("project");
 
 frappe.ui.form.on('Task', {
 	onload: function(frm) {
@@ -35,13 +35,6 @@ frappe.ui.form.on('Task', {
 			}
 
 			if(!doc.__islocal) {
-				if(frappe.model.can_read("Timesheet")) {
-					frm.add_custom_button(__("Timesheet"), function() {
-						frappe.route_options = {"project": doc.project, "task": doc.name}
-						frappe.set_route("List", "Timesheet");
-					}, __("View"), true);
-				}
-
 				if(frm.perm[0].write) {
 					if(frm.doc.status!=="Closed" && frm.doc.status!=="Cancelled") {
 						frm.add_custom_button(__("Close"), function() {

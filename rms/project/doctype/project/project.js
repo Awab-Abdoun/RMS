@@ -24,7 +24,7 @@ frappe.ui.form.on("Project", {
 		if(frm.doc.__islocal) {
 			frm.web_link && frm.web_link.remove();
 		} else {
-			frm.add_web_link("/projects?project=" + encodeURIComponent(frm.doc.name));
+			frm.add_web_link("/project?project=" + encodeURIComponent(frm.doc.name));
 
 			if(frappe.model.can_read("Task")) {
 				frm.add_custom_button(__("Gantt Chart"), function() {

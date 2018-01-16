@@ -39,13 +39,7 @@ def get_data():
 				{
 					"type": "report",
 					"is_query_report": True,
-					"name": "Daily Timesheet Summary",
-					"doctype": "Timesheet"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Project wise Stock Tracking",
+					"name": "Project Tracking",
 					"doctype": "Project"
 				},
 			]

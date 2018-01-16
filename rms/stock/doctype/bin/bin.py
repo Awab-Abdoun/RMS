@@ -6,8 +6,5 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 
-class ProductionOrderItem(Document):
+class Bin(Document):
 	pass
-
-def on_doctype_update():
-	frappe.db.add_index("Production Order Item", ["item_code", "source_warehouse"])
