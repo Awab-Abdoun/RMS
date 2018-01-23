@@ -1,0 +1,23 @@
+{
+ "content": null, 
+ "creation": "2018-01-17 16:00:17.229027", 
+ "docstatus": 0, 
+ "doctype": "Page", 
+ "idx": 0, 
+ "modified": "2018-01-17 16:00:34.859375", 
+ "modified_by": "Administrator", 
+ "module": "Stock", 
+ "name": "stock-balance", 
+ "owner": "Administrator", 
+ "page_name": "stock-balance", 
+ "roles": [
+  {
+   "role": "Stock Manager"
+  }
+ ], 
+ "script": null, 
+ "standard": "Yes", 
+ "style": null, 
+ "system_page": 0, 
+ "title": "Stock Summary"
+}

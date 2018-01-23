@@ -1,26 +1,26 @@
 {
- "add_total_row": 0, 
+ "add_total_row": 1, 
  "apply_user_permissions": 1, 
- "creation": "2018-01-16 18:03:58.008620", 
+ "creation": "2018-01-17 16:15:48.754869", 
  "disabled": 0, 
  "docstatus": 0, 
  "doctype": "Report", 
  "idx": 0, 
  "is_standard": "Yes", 
- "modified": "2018-01-16 21:44:58.556781", 
+ "modified": "2018-01-17 16:15:59.079164", 
  "modified_by": "Administrator", 
- "module": "Manufacturing", 
- "name": "BOM Stock Report", 
+ "module": "Stock", 
+ "name": "Stock Balance", 
  "owner": "Administrator", 
- "ref_doctype": "BOM", 
- "report_name": "BOM Stock Report", 
+ "ref_doctype": "Stock Ledger Entry", 
+ "report_name": "Stock Balance", 
  "report_type": "Script Report", 
  "roles": [
   {
    "role": "System Manager"
   }, 
   {
-   "role": "Manufacturing Manager"
+   "role": "Stock Manager"
   }
  ]
 }

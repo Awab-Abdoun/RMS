@@ -60,9 +60,7 @@ class Item(Document):
 			self.description = self.item_name
 
 		self.validate_description()
-		self.validate_item_type()
 		self.check_for_active_boms()
-		self.validate_barcode()
 		self.update_bom_item_desc()
 
 		if not self.get("__islocal"):
@@ -78,7 +76,7 @@ class Item(Document):
 
 	def set_opening_stock(self):
 		'''set opening stock'''
-		if not self.is_stock_item or self.has_serial_no or self.has_batch_no:
+		if not self.is_stock_item:
 			return
 
 		from rms.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
@@ -94,25 +92,11 @@ class Item(Document):
 
 			stock_entry.add_comment("Comment", _("Opening Stock"))
 
-	def validate_item_type(self):
-		if self.has_serial_no == 1 and self.is_stock_item == 0:
-			msgprint(_("'Has Serial No' can not be 'Yes' for non-stock item"), raise_exception=1)
-
-		if self.has_serial_no == 0 and self.serial_no_series:
-			self.serial_no_series = None
-
 	def check_for_active_boms(self):
 		if self.default_bom:
 			bom_item = frappe.db.get_value("BOM", self.default_bom, "item")
 			if bom_item not in (self.name, self.variant_of):
 				frappe.throw(_("Default BOM ({0}) must be active for this item or its template").format(bom_item))
-
-	def validate_barcode(self):
-		if self.barcode:
-			duplicate = frappe.db.sql("""select name from tabItem where barcode = %s
-				and name != %s""", (self.barcode, self.name))
-			if duplicate:
-				frappe.throw(_("Barcode {0} already used in Item {1}").format(self.barcode, duplicate[0][0]))
 
 	def stock_ledger_created(self):
 		if not hasattr(self, '_stock_ledger_created'):
@@ -123,8 +107,6 @@ class Item(Document):
 	def on_trash(self):
 		super(Item, self).on_trash()
 		frappe.db.sql("""delete from tabBin where item_code=%s""", self.item_code)
-		for variant_of in frappe.get_all("Item", filters={"variant_of": self.name}):
-			frappe.delete_doc("Item", variant_of.name)
 
 	def before_rename(self, old_name, new_name, merge=False):
 		if self.item_name==old_name:
@@ -135,7 +117,7 @@ class Item(Document):
 			if not frappe.db.exists("Item", new_name):
 				frappe.throw(_("Item {0} does not exist").format(new_name))
 
-			field_list = ["stock_uom", "is_stock_item", "has_serial_no", "has_batch_no"]
+			field_list = ["is_stock_item"]
 			new_properties = [cstr(d) for d in frappe.db.get_value("Item", new_name, field_list)]
 			if new_properties != [cstr(self.get(fld)) for fld in field_list]:
 				frappe.throw(_("To merge, following properties must be same for both items")
@@ -154,8 +136,8 @@ class Item(Document):
 	def recalculate_bin_qty(self, new_name):
 		from rms.stock.stock_balance import repost_stock
 		frappe.db.auto_commit_on_many_writes = 1
-		existing_allow_negative_stock = frappe.db.get_value("Stock Settings", None, "allow_negative_stock")
-		frappe.db.set_value("Stock Settings", None, "allow_negative_stock", 1)
+		# existing_allow_negative_stock = frappe.db.get_value("Stock Settings", None, "allow_negative_stock")
+		# frappe.db.set_value("Stock Settings", None, "allow_negative_stock", 1)
 
 		repost_stock_for_warehouses = frappe.db.sql_list("""select distinct warehouse
 			from tabBin where item_code=%s""", new_name)
@@ -166,7 +148,7 @@ class Item(Document):
 		for warehouse in repost_stock_for_warehouses:
 			repost_stock(new_name, warehouse)
 
-		frappe.db.set_value("Stock Settings", None, "allow_negative_stock", existing_allow_negative_stock)
+		# frappe.db.set_value("Stock Settings", None, "allow_negative_stock", existing_allow_negative_stock)
 		frappe.db.auto_commit_on_many_writes = 0
 
 	def update_bom_item_desc(self):

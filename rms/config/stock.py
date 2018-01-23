@@ -47,7 +47,7 @@ def get_data():
 					"is_query_report": True,
 					"name": "Stock Ageing",
 					"doctype": "Item",
-				},
+				}
 
 			]
 		},
@@ -64,7 +64,7 @@ def get_data():
 					"icon": "fa fa-sitemap",
 					"label": _("Item Group"),
 					"link": "Tree/Item Group",
-				},
+				}
 			]
 		},
 		{
