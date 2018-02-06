@@ -9,7 +9,8 @@ from frappe.utils import flt, getdate, get_url
 from frappe import _
 
 from frappe.model.document import Document
-from frappe.desk.reportview import get_match_cond, get_filters_cond
+from rms.controllers.queries import get_filters_cond
+from frappe.desk.reportview import get_match_cond
 
 class Project(Document):
 	def get_feed(self):
@@ -19,6 +20,9 @@ class Project(Document):
 		"""Load project tasks for quick view"""
 		if not self.get('__unsaved') and not self.get("tasks"):
 			self.load_tasks()
+
+	def __setup__(self):
+		self.onload()
 
 	def load_tasks(self):
 		"""Load `tasks` from the database"""
@@ -108,12 +112,58 @@ class Project(Document):
 			})
 
 	def update_project(self):
+		self.update_percent_complete()
 		self.flags.dont_sync_tasks = True
 		self.save(ignore_permissions = True)
+
+	def update_percent_complete(self):
+		total = frappe.db.sql("""select count(name) from tabTask where project=%s""", self.name)[0][0]
+		if not total and self.percent_complete:
+			self.percent_complete = 0
+		if (self.percent_complete_method == "Task Completion" and total > 0) or (not self.percent_complete_method and total > 0):
+			completed = frappe.db.sql("""select count(name) from tabTask where
+				project=%s and status in ('Closed', 'Cancelled')""", self.name)[0][0]
+			self.percent_complete = flt(flt(completed) / total * 100, 2)
 
 	def on_update(self):
 		self.load_tasks()
 		self.sync_tasks()
+		self.update_dependencies_on_duplicated_project()
+
+	def update_dependencies_on_duplicated_project(self):
+		if self.flags.dont_sync_tasks: return
+		if not self.copied_from:
+			self.copied_from = self.name
+
+		if self.name != self.copied_from and self.get('__unsaved'):
+			# duplicated project
+			dependency_map = {}
+			for task in self.tasks:
+				_task = frappe.db.get_value(
+					'Task',
+					{"subject": task.title, "project": self.copied_from},
+					['name', 'depends_on_tasks'],
+					as_dict=True
+				)
+
+				if _task is None:
+					continue
+
+				name = _task.name
+				depends_on_tasks = _task.depends_on_tasks
+
+				depends_on_tasks = [x for x in depends_on_tasks.split(',') if x]
+				dependency_map[task.title] = [ x['subject'] for x in frappe.get_list(
+					'Task Depends On', {"parent": name}, ['subject'])]
+
+			for key, value in dependency_map.iteritems():
+				task_name = frappe.db.get_value('Task', {"subject": key, "project": self.name })
+				task_doc = frappe.get_doc('Task', task_name)
+
+				for dt in value:
+					dt_name = frappe.db.get_value('Task', {"subject": dt, "project": self.name })
+					task_doc.append('depends_on', {"task": dt_name})
+				task_doc.save()
 
 def get_project_list(doctype, txt, filters, limit_start, limit_page_length=20, order_by="modified"):
 	return frappe.db.sql('''select distinct project.*
@@ -134,11 +184,7 @@ def get_list_context(context=None):
 		"show_sidebar": True,
 		"show_search": True,
 		'no_breadcrumbs': True,
-		"title": _("Projects"),
+		"title": _("Project"),
 		"get_list": get_project_list,
 		"row_template": "templates/includes/project/project_row.html"
 	}
-
-@frappe.whitelist()
-def get_cost_center_name(project):
-	return frappe.db.get_value("Project", project, "cost_center")

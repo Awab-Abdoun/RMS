@@ -69,15 +69,15 @@ class Task(NestedSet):
 			from frappe.desk.form.assign_to import clear
 			clear(self.doctype, self.name)
 
-	def update_time(self):
-		tl = frappe.db.sql("""select min(from_time) as start_date, max(to_time) as end_date,
-			sum(hours) as time from `tabTimesheet Detail` where task = %s and docstatus=1"""
-			,self.name, as_dict=1)[0]
-		if self.status == "Open":
-			self.status = "Working"
-		self.actual_time= tl.time
-		self.act_start_date= tl.start_date
-		self.act_end_date= tl.end_date
+	# def update_time_and_costing(self):
+	# 	tl = frappe.db.sql("""select min(from_time) as start_date, max(to_time) as end_date,
+	# 		sum(hours) as time from `tabTimesheet Detail` where task = %s and docstatus=1"""
+	# 		,self.name, as_dict=1)[0]
+	# 	if self.status == "Open":
+	# 		self.status = "Working"
+	# 	self.actual_time= tl.time
+	# 	self.act_start_date= tl.start_date
+	# 	self.act_end_date= tl.end_date
 
 	def update_project(self):
 		if self.project and not self.flags.from_project:

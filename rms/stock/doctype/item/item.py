@@ -19,19 +19,14 @@ class StockExistsForTemplate(frappe.ValidationError): pass
 
 class Item(Document):
 	def onload(self):
-		super(Item, self).onload()
+		# super(Item, self).onload()
 
 		self.set_onload('stock_exists', self.stock_ledger_created())
 
 	def autoname(self):
 		if frappe.db.get_default("item_naming_by")=="Naming Series":
-			if self.variant_of:
-				if not self.item_code:
-					template_item_name = frappe.db.get_value("Item", self.variant_of, "item_name")
-					self.item_code = make_variant_item_code(self.variant_of, template_item_name, self)
-			else:
-				from frappe.model.naming import make_autoname
-				self.item_code = make_autoname(self.naming_series+'.#####')
+			from frappe.model.naming import make_autoname
+			self.item_code = make_autoname(self.naming_series+'.#####')
 		elif not self.item_code:
 			msgprint(_("Item Code is mandatory because Item is not automatically numbered"), raise_exception=1)
 
@@ -51,7 +46,7 @@ class Item(Document):
 	def validate(self):
 		self.get_doc_before_save()
 
-		super(Item, self).validate()
+		# super(Item, self).validate()
 
 		if not self.item_name:
 			self.item_name = self.item_code
@@ -82,9 +77,7 @@ class Item(Document):
 		from rms.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
 
 		# default warehouse, or Stores
-		default_warehouse = (self.default_warehouse
-			or frappe.db.get_single_value('Stock Settings', 'default_warehouse')
-			or frappe.db.get_value('Warehouse', {'warehouse_name': _('Stores')}))
+		default_warehouse = (self.default_warehouse)
 
 		if default_warehouse:
 			stock_entry = make_stock_entry(item_code=self.name, target=default_warehouse,
@@ -95,7 +88,7 @@ class Item(Document):
 	def check_for_active_boms(self):
 		if self.default_bom:
 			bom_item = frappe.db.get_value("BOM", self.default_bom, "item")
-			if bom_item not in (self.name, self.variant_of):
+			if bom_item not in (self.name):
 				frappe.throw(_("Default BOM ({0}) must be active for this item or its template").format(bom_item))
 
 	def stock_ledger_created(self):
@@ -105,7 +98,7 @@ class Item(Document):
 		return self._stock_ledger_created
 
 	def on_trash(self):
-		super(Item, self).on_trash()
+		# super(Item, self).on_trash()
 		frappe.db.sql("""delete from tabBin where item_code=%s""", self.item_code)
 
 	def before_rename(self, old_name, new_name, merge=False):

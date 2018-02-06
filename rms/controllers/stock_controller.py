@@ -5,7 +5,7 @@ from frappe.utils import cint, flt, cstr
 from frappe import msgprint, _
 import frappe.defaults
 
-class StockController(AccountsController):
+class StockController():
 	def validate(self):
 		super(StockController, self).validate()
 		self.validate_inspection()

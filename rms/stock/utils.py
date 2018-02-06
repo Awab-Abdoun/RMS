@@ -37,10 +37,10 @@ def get_stock_value_on(warehouse=None, posting_date=None, item_code=None):
 		ORDER BY timestamp(posting_date, posting_time) DESC, name DESC
 	""".format(condition), values, as_dict=1)
 
-	# sle_map = {}
-	# for sle in stock_ledger_entries:
-	# 	if not sle_map.has_key((sle.item_code, sle.warehouse)):
-	# 		sle_map[(sle.item_code, sle.warehouse)] = flt(sle.stock_value)
+	sle_map = {}
+	for sle in stock_ledger_entries:
+		if not sle_map.has_key((sle.item_code, sle.warehouse)):
+			sle_map[(sle.item_code, sle.warehouse)] = flt(sle.stock_value)
 
 	return sum(sle_map.values())
 
