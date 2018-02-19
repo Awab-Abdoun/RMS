@@ -124,24 +124,6 @@ frappe.ui.form.on('Stock Entry Detail', {
 
 });
 
-// var validate_sample_quantity = function(frm, cdt, cdn) {
-// 	var d = locals[cdt][cdn];
-// 	if (d.sample_quantity && frm.doc.purpose == "Material Receipt") {
-// 		frappe.call({
-// 			method: 'erpnext.stock.doctype.stock_entry.stock_entry.validate_sample_quantity',
-// 			args: {
-// 				batch_no: d.batch_no,
-// 				item_code: d.item_code,
-// 				sample_quantity: d.sample_quantity,
-// 				qty: d.transfer_qty
-// 			},
-// 			callback: (r) => {
-// 				frappe.model.set_value(cdt, cdn, "sample_quantity", r.message);
-// 			}
-// 		});
-// 	}
-// };
-
 rms.stock.StockEntry = rms.stock.StockController.extend({
 	setup: function() {
 		var me = this;

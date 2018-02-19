@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from . import __version__ as app_version
+from frappe import _
 
 app_name = "rms"
 app_title = "Resource Management System"
@@ -10,20 +11,21 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "awab.abdoun@gmail.com"
 app_license = "MIT"
+source_link = "https://github.com/Awab-Abdoun/rms"
 
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/rms/css/rms.css"
-# app_include_js = "/assets/rms/js/rms.js"
+app_include_css = "/assets/rms/css/rms.css"
+app_include_js = "/assets/rms/js/rms.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/rms/css/rms.css"
-# web_include_js = "/assets/rms/js/rms.js"
+web_include_css = "/assets/rms/css/rms.css"
+web_include_js = "/assets/rms/js/rms.js"
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
@@ -61,7 +63,9 @@ app_license = "MIT"
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "rms.notifications.get_notification_config"
+notification_config = "rms.startup.notifications.get_notification_config"
+treeviews = ['Warehouse', 'Item Group']
+calendars = ["Task", "Production Order"]
 
 # Permissions
 # -----------
@@ -79,34 +83,23 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+dump_report_map = "rms.startup.report_data_map.data_map"
+
+doc_events = {
+	"Stock Entry": {
+		"on_submit": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty",
+		"on_cancel": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"rms.tasks.all"
-# 	],
-# 	"daily": [
-# 		"rms.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"rms.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"rms.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"rms.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+	"daily": [
+		"rms.project.doctype.task.task.set_tasks_as_overdue",
+	]
+}
 
 # Testing
 # -------
@@ -119,4 +112,3 @@ app_license = "MIT"
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "rms.event.get_events"
 # }
-

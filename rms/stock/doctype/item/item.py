@@ -38,7 +38,7 @@ class Item(Document):
 			self.description = self.item_name
 
 	def after_insert(self):
-		'''set opening stock and item price'''
+		'''set opening stock'''
 
 		if self.opening_stock:
 			self.set_opening_stock()

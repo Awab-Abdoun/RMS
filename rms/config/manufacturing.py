@@ -14,11 +14,6 @@ def get_data():
 				},
 				{
 					"type": "doctype",
-					"name": "Production Planning Tool",
-					"description": _("Generate Material Requests (MRP) and Production Orders."),
-				},
-				{
-					"type": "doctype",
 					"name": "Stock Entry",
 				},
 
@@ -60,17 +55,6 @@ def get_data():
 			]
 		},
 		{
-			"label": _("Tools"),
-			"icon": "fa fa-wrench",
-			"items": [
-				{
-					"type": "doctype",
-					"name": "BOM Update Tool",
-					"description": _("Replace BOM and update latest price in all BOMs"),
-				},
-			]
-		},
-		{
 			"label": _("Setup"),
 			"items": [
 				{
@@ -99,20 +83,8 @@ def get_data():
 				{
 					"type": "report",
 					"is_query_report": True,
-					"name": "Issued Items Against Production Order",
-					"doctype": "Production Order"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
 					"name": "Completed Production Orders",
 					"doctype": "Production Order"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "BOM Search",
-					"doctype": "BOM"
 				},
 				{
 					"type": "report",

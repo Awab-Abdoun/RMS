@@ -32,21 +32,9 @@ def get_data():
 					"doctype": "Stock Ledger Entry"
 				},
 				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Stock Projected Qty",
-					"doctype": "Item",
-				},
-				{
 					"type": "page",
 					"name": "stock-balance",
 					"label": _("Stock Summary")
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Stock Ageing",
-					"doctype": "Item",
 				}
 
 			]
@@ -98,24 +86,6 @@ def get_data():
 				{
 					"type": "report",
 					"is_query_report": True,
-					"name": "Ordered Items To Be Delivered",
-					"doctype": "Delivery Note"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Purchase Order Items To Be Received",
-					"doctype": "Purchase Receipt"
-				},
-				{
-					"type": "report",
-					"name": "Item Shortage Report",
-					"route": "Report/Bin/Item Shortage Report",
-					"doctype": "Purchase Receipt"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
 					"name": "Requested Items To Be Transferred",
 					"doctype": "Material Request"
 				},
@@ -123,12 +93,6 @@ def get_data():
 					"type": "report",
 					"is_query_report": True,
 					"name": "Itemwise Recommended Reorder Level",
-					"doctype": "Item"
-				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Item Variant Details",
 					"doctype": "Item"
 				}
 			]

@@ -2,10 +2,10 @@
 Configuration for docs
 """
 
-# source_link = "https://github.com/[org_name]/rms"
+source_link = "https://github.com/Awab-Abdoun/rms"
 # docs_base_url = "https://[org_name].github.io/rms"
-# headline = "App that does everything"
-# sub_heading = "Yes, you got that right the first time, everything"
+headline = "Resource Management System"
+sub_heading = "helps in the manufacturing process"
 
 def get_context(context):
 	context.brand_html = "Resource Management System"

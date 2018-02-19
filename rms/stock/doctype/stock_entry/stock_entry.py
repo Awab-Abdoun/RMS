@@ -16,7 +16,7 @@ class DuplicateEntryForProductionOrderError(frappe.ValidationError): pass
 class OperationsNotCompleteError(frappe.ValidationError): pass
 class MaxSampleAlreadyRetainedError(frappe.ValidationError): pass
 
-from erpnext.controllers.stock_controller import StockController
+from rms.controllers.stock_controller import StockController
 
 form_grid_templates = {
 	"items": "templates/form_grid/stock_entry_grid.html"
@@ -46,17 +46,11 @@ class StockEntry(StockController):
 		self.validate_finished_goods()
 		self.validate_with_material_request()
 
-		if self._action == 'submit':
-			self.make_batches('t_warehouse')
-		else:
-			set_batch_nos(self, 's_warehouse')
-
 		self.set_actual_qty()
 
 	def on_submit(self):
 		self.update_stock_ledger()
 		self.update_production_order()
-		self.validate_purchase_order()
 
 	def on_cancel(self):
 		self.update_stock_ledger()
@@ -215,29 +209,6 @@ class StockEntry(StockController):
 		self.set_transfer_qty()
 		self.set_actual_qty()
 
-	# def validate_purchase_order(self):
-	# 	"""Throw exception if more raw material is transferred against Purchase Order than in
-	# 	the raw materials supplied table"""
-	# 	if self.purpose == "Subcontract" and self.purchase_order:
-	# 		purchase_order = frappe.get_doc("Purchase Order", self.purchase_order)
-	# 		for se_item in self.items:
-	# 			total_allowed = sum([flt(d.required_qty) for d in purchase_order.supplied_items \
-	# 				if d.rm_item_code == se_item.item_code])
-	# 			if not total_allowed:
-	# 				frappe.throw(_("Item {0} not found in 'Raw Materials Supplied' table in Purchase Order {1}")
-	# 					.format(se_item.item_code, self.purchase_order))
-	# 			total_supplied = frappe.db.sql("""select sum(transfer_qty)
-	# 				from `tabStock Entry Detail`, `tabStock Entry`
-	# 				where `tabStock Entry`.purchase_order = %s
-	# 					and `tabStock Entry`.docstatus = 1
-	# 					and `tabStock Entry Detail`.item_code = %s
-	# 					and `tabStock Entry Detail`.parent = `tabStock Entry`.name""",
-	# 						(self.purchase_order, se_item.item_code))[0][0]
-    #
-	# 			if total_supplied > total_allowed:
-	# 				frappe.throw(_("Row {0}# Item {1} cannot be transferred more than {2} against Purchase Order {3}")
-	# 					.format(se_item.idx, se_item.item_code, total_allowed, self.purchase_order))
-
 	def validate_bom(self):
 		for d in self.get('items'):
 			if d.bom_no and (d.t_warehouse != getattr(self, "pro_doc", frappe._dict()).scrap_warehouse):
@@ -313,7 +284,7 @@ class StockEntry(StockController):
 
 	def get_item_details(self, args=None, for_update=False):
 		item = frappe.db.sql("""select description, image, item_name,
-				item_group, sample_quantity
+				item_group
 			from `tabItem`
 			where name = %s
 				and disabled=0
@@ -330,8 +301,7 @@ class StockEntry(StockController):
 			'item_name' 		  	: item.item_name,
 			'qty'					: 0,
 			'transfer_qty'			: 0,
-			'actual_qty'			: 0,
-			'sample_quantity'		: item.sample_quantity
+			'actual_qty'			: 0
 		})
 
 		args['posting_date'] = self.posting_date
@@ -587,39 +557,6 @@ class StockEntry(StockController):
 					frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
 						frappe.MappingMismatchError)
 
-# @frappe.whitelist()
-# def move_sample_to_retention_warehouse(company, items):
-# 	if isinstance(items, basestring):
-# 		items = json.loads(items)
-# 	retention_warehouse = frappe.db.get_single_value('Stock Settings', 'sample_retention_warehouse')
-# 	stock_entry = frappe.new_doc("Stock Entry")
-# 	stock_entry.company = company
-# 	stock_entry.purpose = "Material Transfer"
-# 	for item in items:
-# 		if item.get('sample_quantity') and item.get('batch_no'):
-# 			sample_quantity = validate_sample_quantity(item.get('item_code'), item.get('sample_quantity'), item.get('transfer_qty') or item.get('qty'), item.get('batch_no'))
-# 			if sample_quantity:
-# 				sample_serial_nos = ''
-# 				if item.get('serial_no'):
-# 					serial_nos = (item.get('serial_no')).split()
-# 					if serial_nos and len(serial_nos) > item.get('sample_quantity'):
-# 						serial_no_list = serial_nos[:-(len(serial_nos)-item.get('sample_quantity'))]
-# 						sample_serial_nos = '\n'.join(serial_no_list)
-# 				stock_entry.append("items", {
-# 					"item_code": item.get('item_code'),
-# 					"s_warehouse": item.get('t_warehouse'),
-# 					"t_warehouse": retention_warehouse,
-# 					"qty": item.get('sample_quantity'),
-# 					"basic_rate": item.get('valuation_rate'),
-# 					'uom': item.get('uom'),
-# 					'stock_uom': item.get('stock_uom'),
-# 					"conversion_factor": 1.0,
-# 					"serial_no": sample_serial_nos,
-# 					'batch_no': item.get('batch_no')
-# 				})
-# 	if stock_entry.get('items'):
-# 		return stock_entry.as_dict()
-
 @frappe.whitelist()
 def get_production_order_details(production_order):
 	production_order = frappe.get_doc("Production Order", production_order)
@@ -651,23 +588,3 @@ def get_warehouse_details(args):
 			"actual_qty" : get_previous_sle(args).get("qty_after_transaction") or 0
 		}
 	return ret
-
-# @frappe.whitelist()
-# def validate_sample_quantity(item_code, sample_quantity, qty, batch_no = None):
-# 	if cint(qty) < cint(sample_quantity):
-# 		frappe.throw(_("Sample quantity {0} cannot be more than received quantity {1}").format(sample_quantity, qty))
-# 	retention_warehouse = frappe.db.get_single_value('Stock Settings', 'sample_retention_warehouse')
-# 	retainted_qty = 0
-# 	if batch_no:
-# 		retainted_qty = get_batch_qty(batch_no, retention_warehouse, item_code)
-# 	max_retain_qty = frappe.get_value('Item', item_code, 'sample_quantity')
-# 	if retainted_qty >= max_retain_qty:
-# 		frappe.msgprint(_("Maximum Samples - {0} have already been retained for Batch {1} and Item {2} in Batch {3}.").
-# 			format(retainted_qty, batch_no, item_code, batch_no), alert=True)
-# 		sample_quantity = 0
-# 	qty_diff = max_retain_qty-retainted_qty
-# 	if cint(sample_quantity) > cint(qty_diff):
-# 		frappe.msgprint(_("Maximum Samples - {0} can be retained for Batch {1} and Item {2}.").
-# 			format(max_retain_qty, batch_no, item_code), alert=True)
-# 		sample_quantity = qty_diff
-# 	return sample_quantity
