@@ -1,5 +1,5 @@
 
-import frappe, erpnext
+import frappe, rms
 from frappe.utils import cint, flt
 
 @frappe.whitelist()

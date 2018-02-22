@@ -1,1 +1,4 @@
 frappe
+unidecode
+pygithub
+googlemaps

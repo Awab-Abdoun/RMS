@@ -67,16 +67,16 @@ frappe.ui.form.on('Stock Entry', {
 						'posting_time': frm.doc.posting_time
 					}
 				},
-				callback: function(r) {
-					if (!r.exc) {
-						$.extend(child, r.message);
-						frm.events.calculate_basic_amount(frm, child);
-					}
-
-					if (callback) {
-						callback();
-					}
-				}
+				// callback: function(r) {
+				// 	if (!r.exc) {
+				// 		$.extend(child, r.message);
+				// 		frm.events.calculate_basic_amount(frm, child);
+				// 	}
+        //
+				// 	if (callback) {
+				// 		callback();
+				// 	}
+				// }
 			});
 		}
 	},
@@ -143,19 +143,19 @@ rms.stock.StockEntry = rms.stock.StockController.extend({
 			return rms.queries.item({is_stock_item: 1});
 		};
 
-		this.frm.set_query("purchase_order", function() {
-			return {
-				"filters": {
-					"docstatus": 1,
-					"is_subcontracted": "Yes"
-				}
-			};
-		});
+		// this.frm.set_query("purchase_order", function() {
+		// 	return {
+		// 		"filters": {
+		// 			"docstatus": 1,
+		// 			"is_subcontracted": "Yes"
+		// 		}
+		// 	};
+		// });
 
 		this.frm.set_indicator_formatter('item_code',
 			function(doc) { return (doc.qty<=doc.actual_qty) ? "green" : "orange" })
 
-		this.frm.add_fetch("purchase_order");
+		// this.frm.add_fetch("purchase_order");
 	},
 
 	refresh: function() {

@@ -1,6 +1,6 @@
 
 from __future__ import unicode_literals
-import frappe, erpnext
+import frappe, rms
 from frappe.utils import cint, flt, cstr
 from frappe import msgprint, _
 import frappe.defaults

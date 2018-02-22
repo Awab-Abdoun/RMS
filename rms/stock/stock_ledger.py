@@ -1,7 +1,7 @@
 
 from __future__ import unicode_literals
 
-import frappe, erpnext
+import frappe, rms
 from frappe import _
 from frappe.utils import cint, flt, cstr, now
 import json
