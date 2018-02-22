@@ -80,9 +80,6 @@ frappe.ui.form.on('Stock Reconciliation', {
 });
 
 frappe.ui.form.on("Stock Reconciliation Item", {
-	barcode: function(frm, cdt, cdn) {
-		frm.events.set_item_code(frm, cdt, cdn);
-	},
 	warehouse: function(frm, cdt, cdn) {
 		frm.events.set_valuation_rate_and_qty(frm, cdt, cdn);
 	},
@@ -95,19 +92,19 @@ frappe.ui.form.on("Stock Reconciliation Item", {
 
 });
 
-rms.stock.StockReconciliation = rms.stock.StockController.extend({
-	setup: function() {
-		var me = this;
-
-		this.setup_posting_date_time_check();
-	},
-
-	refresh: function() {
-		if(this.frm.doc.docstatus==1) {
-			this.show_stock_ledger();
-		}
-	},
-
-});
-
-cur_frm.cscript = new rms.stock.StockReconciliation({frm: cur_frm});
+// rms.stock.StockReconciliation = rms.stock.StockController.extend({
+// 	setup: function() {
+// 		var me = this;
+//
+// 		this.setup_posting_date_time_check();
+// 	},
+//
+// 	refresh: function() {
+// 		if(this.frm.doc.docstatus==1) {
+// 			this.show_stock_ledger();
+// 		}
+// 	},
+//
+// });
+//
+// cur_frm.cscript = new rms.stock.StockReconciliation({frm: cur_frm});

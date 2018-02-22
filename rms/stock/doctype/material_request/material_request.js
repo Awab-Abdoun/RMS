@@ -5,9 +5,6 @@ frappe.ui.form.on('Material Request', {
 	setup: function(frm) {
 		frm.custom_make_buttons = {
 			'Stock Entry': 'Issue Material',
-			'Purchase Order': 'Purchase Order',
-			'Request for Quotation': 'Request for Quotation',
-			'Supplier Quotation': 'Supplier Quotation',
 			'Production Order': 'Production Order'
 		}
 	},
@@ -20,8 +17,7 @@ frappe.ui.form.on('Material Request', {
 
 		// formatter for material request item
 		frm.set_indicator_formatter('item_code',
-			function(doc) { return (doc.qty<=doc.ordered_qty) ? "green" : "orange" }),
-
+			function(doc) { return (doc.qty<=doc.ordered_qty) ? "green" : "orange" })
 	}
 });
 
@@ -253,8 +249,6 @@ frappe.ui.form.on("Material Request Item", {
 // 		set_schedule_date(this.frm);
 // 	}
 // });
-
-// for backward compatibility: combine new and previous states
 
 cur_frm.cscript['Stop Material Request'] = function() {
 	var doc = cur_frm.doc;
