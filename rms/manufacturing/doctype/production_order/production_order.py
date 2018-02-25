@@ -190,8 +190,7 @@ class ProductionOrder(Document):
 		if index == 0:
 			data.planned_start_time = self.planned_start_date
 		else:
-			data.planned_start_time = get_datetime(self.operations[index-1].planned_end_time)\
-								+ get_mins_between_operations()
+			data.planned_start_time = get_datetime(self.operations[index-1].planned_end_time)
 
 		data.planned_end_time = get_datetime(data.planned_start_time) + relativedelta(minutes = data.time_in_mins)
 

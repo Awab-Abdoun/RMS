@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 
+# from rms.controllers.stock_controller import StockController
 from frappe.utils import cstr, flt, getdate, new_line_sep, nowdate, add_days
 from frappe import msgprint, _
 from frappe.model.mapper import get_mapped_doc
@@ -26,7 +27,7 @@ class MaterialRequest(Document):
 	# Validate
 	# ---------------------
 	def validate(self):
-		super(MaterialRequest, self).validate()
+		# super(MaterialRequest, self).validate()
 
 		self.validate_schedule_date()
 
@@ -38,12 +39,26 @@ class MaterialRequest(Document):
 			["Draft", "Submitted", "Stopped", "Cancelled", "Pending",
 			"Partially Ordered", "Ordered", "Issued", "Transferred"])
 
-		validate_for_items(self)
+		# validate_for_items(self)
 
 		# self.set_title()
 		# self.validate_qty_against_so()
 		# NOTE: Since Item BOM and FG quantities are combined, using current data, it cannot be validated
 		# Though the creation of Material Request from a Production Plan can be rethought to fix this
+
+	def validate_schedule_date(self):
+		if not self.schedule_date:
+			self.schedule_date = min([d.schedule_date for d in self.get("items")])
+
+		if self.schedule_date:
+			for d in self.get('items'):
+				if not d.schedule_date:
+					d.schedule_date = self.schedule_date
+
+				if d.schedule_date and getdate(d.schedule_date) < getdate(self.transaction_date):
+					frappe.throw(_("Expected Date cannot be before Transaction Date"))
+		else:
+			frappe.throw(_("Please enter Schedule Date"))
 
 	def set_title(self):
 		'''Set title as comma separated list of items'''
@@ -187,6 +202,12 @@ def set_missing_values(source, target_doc):
 def update_item(obj, target, source_parent):
 	target.qty = flt(flt(obj.stock_qty) - flt(obj.ordered_qty))
 	target.stock_qty = target.qty
+
+def check_for_closed_status(doctype, docname):
+	status = frappe.db.get_value(doctype, docname, "status")
+
+	if status == "Closed":
+		frappe.throw(_("{0} {1} status is {2}").format(doctype, docname, status), frappe.InvalidStatusError)
 
 @frappe.whitelist()
 def make_stock_entry(source_name, target_doc=None):

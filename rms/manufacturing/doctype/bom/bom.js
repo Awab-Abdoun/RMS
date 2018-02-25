@@ -9,7 +9,7 @@ frappe.ui.form.on('BOM', {
 		frm.add_fetch("item", "image", "image");
 		frm.add_fetch("item", "item_name", "item_name");
 
-		);
+		// );
 
 		frm.set_query("item", function() {
 			return {
@@ -70,23 +70,23 @@ frappe.ui.form.on('BOM', {
 
 });
 
-rms.bom.BomController = rms.TransactionController.extend({
-	item_code: function(doc, cdt, cdn){
-		var scrap_items = false;
-		var child = locals[cdt][cdn];
-		if(child.doctype == 'BOM Scrap Item') {
-			scrap_items = true;
-		}
+// rms.bom.BomController = rms.TransactionController.extend({
+// 	item_code: function(doc, cdt, cdn){
+// 		var scrap_items = false;
+// 		var child = locals[cdt][cdn];
+// 		if(child.doctype == 'BOM Scrap Item') {
+// 			scrap_items = true;
+// 		}
 
-		if (child.bom_no) {
-			child.bom_no = '';
-		}
+// 		if (child.bom_no) {
+// 			child.bom_no = '';
+// 		}
 
-		get_bom_material_detail(doc, cdt, cdn, scrap_items);
-	},
-});
+// 		get_bom_material_detail(doc, cdt, cdn, scrap_items);
+// 	},
+// });
 
-$.extend(cur_frm.cscript, new rms.bom.BomController({frm: cur_frm}));
+// $.extend(cur_frm.cscript, new rms.bom.BomController({frm: cur_frm}));
 
 cur_frm.cscript.bom_no	= function(doc, cdt, cdn) {
 	get_bom_material_detail(doc, cdt, cdn, false);

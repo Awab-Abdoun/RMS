@@ -119,7 +119,7 @@ class Item(Document):
 	def after_rename(self, old_name, new_name, merge):
 		if self.route:
 			invalidate_cache_for_item(self)
-			clear_cache(self.route)
+			# clear_cache(self.route)
 
 		frappe.db.set_value("Item", new_name, "item_code", new_name)
 
