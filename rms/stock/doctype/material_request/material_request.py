@@ -6,18 +6,18 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 
-# from rms.controllers.stock_controller import StockController
 from frappe.utils import cstr, flt, getdate, new_line_sep, nowdate, add_days
 from frappe import msgprint, _
 from frappe.model.mapper import get_mapped_doc
 from rms.stock.stock_balance import update_bin_qty, get_indented_qty
 from rms.manufacturing.doctype.production_order.production_order import get_item_details
+from rms.controllers.stock_controller import StockController
 
 form_grid_templates = {
 	"items": "templates/form_grid/material_request_grid.html"
 }
 
-class MaterialRequest(Document):
+class MaterialRequest(StockController):
 	def get_feed(self):
 		return _("{0}: {1}").format(self.status, self.material_request_type)
 
@@ -27,7 +27,7 @@ class MaterialRequest(Document):
 	# Validate
 	# ---------------------
 	def validate(self):
-		# super(MaterialRequest, self).validate()
+		super(MaterialRequest, self).validate()
 
 		self.validate_schedule_date()
 
@@ -128,9 +128,6 @@ class MaterialRequest(Document):
 		self.update_requested_qty()
 
 	def update_completed_qty(self, mr_items=None, update_modified=True):
-		if self.material_request_type == "Purchase":
-			return
-
 		if not mr_items:
 			mr_items = [d.name for d in self.get("items")]
 

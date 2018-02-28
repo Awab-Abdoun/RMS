@@ -118,10 +118,6 @@ frappe.ui.form.on('Stock Entry Detail', {
 		}
 	},
 
-	sample_quantity: function(frm, cdt, cdn) {
-		validate_sample_quantity(frm, cdt, cdn);
-	},
-
 });
 
 // rms.stock.StockEntry = rms.stock.StockController.extend({

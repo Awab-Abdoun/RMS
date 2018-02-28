@@ -4,11 +4,11 @@ import frappe, rms
 from frappe.utils import cint, flt, cstr
 from frappe import msgprint, _
 import frappe.defaults
+from rms.utilities.transaction_base import TransactionBase
 
-class StockController():
+class StockController(TransactionBase):
 	def validate(self):
 		super(StockController, self).validate()
-		self.validate_inspection()
 
 	def get_voucher_details(self, sle_map):
 		if self.doctype == "Stock Reconciliation":

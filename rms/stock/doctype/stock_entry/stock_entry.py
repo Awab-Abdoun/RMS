@@ -58,7 +58,7 @@ class StockEntry(StockController):
 
 	def validate_purpose(self):
 		valid_purposes = ["Material Issue", "Material Receipt", "Material Transfer", "Material Transfer for Manufacture",
-			"Manufacture", "Repack", "Subcontract"]
+			"Manufacture", "Repack"]
 		if self.purpose not in valid_purposes:
 			frappe.throw(_("Purpose must be one of {0}").format(comma_or(valid_purposes)))
 
@@ -82,6 +82,16 @@ class StockEntry(StockController):
 
 			if not item.transfer_qty and item.qty:
 				item.transfer_qty = item.qty
+
+	def get_stock_items(self):
+		stock_items = []
+		item_codes = list(set(item.item_code for item in self.get("items")))
+		if item_codes:
+			stock_items = [r[0] for r in frappe.db.sql("""select name
+				from `tabItem` where name in (%s) and is_stock_item=1""" % \
+				(", ".join((["%s"]*len(item_codes))),), item_codes)]
+
+		return stock_items
 
 	def validate_warehouse(self):
 		"""perform various (sometimes conditional) validations on warehouse"""
@@ -263,7 +273,7 @@ class StockEntry(StockController):
 		if self.docstatus == 2:
 			sl_entries.reverse()
 
-		self.make_sl_entries(sl_entries, self.amended_from and 'Yes' or 'No')
+		self.make_sl_entries(sl_entries, self.amended_from)
 
 	def update_production_order(self):
 		def _validate_production_order(pro_doc):

@@ -22,7 +22,7 @@ class Bin(Document):
 			if (not getattr(self, f, None)) or (not self.get(f)):
 				self.set(f, 0.0)
 
-	def update_stock(self, args, via_landed_cost_voucher=False):
+	def update_stock(self, args):
 		'''Called from rms.stock.utils.update_bin'''
 		self.update_qty(args)
 
@@ -33,7 +33,7 @@ class Bin(Document):
 				args["posting_date"] = nowdate()
 
 			# update valuation and qty after transaction for post dated entry
-			if args.get("is_cancelled") == "Yes" and via_landed_cost_voucher:
+			if args.get("is_cancelled") == "Yes":
 				return
 			update_entries_after({
 				"item_code": self.item_code,
@@ -41,7 +41,7 @@ class Bin(Document):
 				"posting_date": args.get("posting_date"),
 				"posting_time": args.get("posting_time"),
 				"voucher_no": args.get("voucher_no")
-			}, via_landed_cost_voucher=via_landed_cost_voucher)
+			})
 
 	def update_qty(self, args):
 		# update the stock values (for current quantities)

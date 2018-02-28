@@ -12,7 +12,7 @@ class NegativeStockError(frappe.ValidationError): pass
 _exceptions = frappe.local('stockledger_exceptions')
 # _exceptions = []
 
-def make_sl_entries(sl_entries):
+def make_sl_entries(sl_entries, is_amended=None):
 	if sl_entries:
 		from rms.stock.utils import update_bin
 
@@ -126,6 +126,7 @@ class update_entries_after(object):
 		bin_doc.save(ignore_permissions=True)
 
 	def process_sle(self, sle):
+		self.qty_after_transaction += flt(sle.actual_qty)
 		if sle.voucher_type=="Stock Reconciliation":
 			# assert
 			self.qty_after_transaction = sle.qty_after_transaction

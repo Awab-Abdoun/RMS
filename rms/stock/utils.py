@@ -5,7 +5,6 @@ from frappe import _
 import json
 from frappe.utils import flt, cstr, nowdate, nowtime
 
-class InvalidWarehouseCompany(frappe.ValidationError): pass
 
 def get_stock_value_on(warehouse=None, posting_date=None, item_code=None):
 	if not posting_date: posting_date = nowdate()

@@ -34,7 +34,7 @@ class StockReconciliation(StockController):
 		"""Remove items if qty or rate is not changed"""
 		def _changed(item):
 			qty = get_stock_balance(item.item_code, item.warehouse,
-					self.posting_date, self.posting_time, with_valuation_rate=True)
+					self.posting_date, self.posting_time)
 			if (item.qty==None or item.qty==qty):
 				return False
 			else:

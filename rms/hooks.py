@@ -101,6 +101,10 @@ scheduler_events = {
 	]
 }
 
+bot_parsers = [
+	'rms.utilities.bot.FindItemBot',
+]
+
 # Testing
 # -------
 
