@@ -126,7 +126,7 @@ class update_entries_after(object):
 		bin_doc.save(ignore_permissions=True)
 
 	def process_sle(self, sle):
-		self.qty_after_transaction += flt(sle.actual_qty)
+		self.qty_after_transaction = sle.qty_after_transaction
 		if sle.voucher_type=="Stock Reconciliation":
 			# assert
 			self.qty_after_transaction = sle.qty_after_transaction
@@ -180,16 +180,14 @@ class update_entries_after(object):
 	# 					currency=erpnext.get_company_currency(sle.company))
 
 	def get_fifo_values(self, sle):
-		incoming_rate = flt(sle.incoming_rate)
 		actual_qty = flt(sle.actual_qty)
-		outgoing_rate = flt(sle.outgoing_rate)
 
 		if actual_qty > 0:
 			if not self.stock_queue:
 				self.stock_queue.append([0, 0])
 
 			if self.stock_queue[-1][0] > 0:
-				self.stock_queue.append([actual_qty, incoming_rate])
+				self.stock_queue.append([actual_qty])
 			else:
 				qty = self.stock_queue[-1][0] + actual_qty
 				self.stock_queue[-1] = [qty]
@@ -201,9 +199,6 @@ class update_entries_after(object):
 					self.stock_queue.append([0])
 
 				index = None
-				index = 0
-
-		stock_qty = sum((flt(batch[0]) for batch in self.stock_queue))
 
 	def get_sle_before_datetime(self):
 		"""get previous stock ledger entry before current time-bucket"""

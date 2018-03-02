@@ -67,7 +67,7 @@ class BOM(Document):
 
 	def get_item_det(self, item_code):
 		item = frappe.db.sql("""select name, item_name, docstatus, description, image,
-			is_sub_contracted_item, default_bom
+			default_bom
 			from `tabItem` where name=%s""", item_code, as_dict = 1)
 
 		if not item:

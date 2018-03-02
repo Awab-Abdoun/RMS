@@ -222,8 +222,8 @@ def get_items(warehouse, posting_date, posting_time):
 def get_stock_balance_for(item_code, warehouse, posting_date, posting_time):
 	frappe.has_permission("Stock Reconciliation", "write", throw = True)
 
-	qty, rate = get_stock_balance(item_code, warehouse,
-		posting_date, posting_time, with_valuation_rate=True)
+	qty = get_stock_balance(item_code, warehouse,
+		posting_date, posting_time)
 
 	return {
 		'qty': qty
