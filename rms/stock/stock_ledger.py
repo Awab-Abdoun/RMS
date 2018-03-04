@@ -141,44 +141,6 @@ class update_entries_after(object):
 		sle.doctype="Stock Ledger Entry"
 		frappe.get_doc(sle).db_update()
 
-	# def get_moving_average_values(self, sle):
-	# 	actual_qty = flt(sle.actual_qty)
-	# 	new_stock_qty = flt(self.qty_after_transaction) + actual_qty
-	# 	if new_stock_qty >= 0:
-	# 		if actual_qty > 0:
-	# 			if flt(self.qty_after_transaction) <= 0:
-	# 				self.valuation_rate = sle.incoming_rate
-	# 			else:
-	# 				new_stock_value = (self.qty_after_transaction * self.valuation_rate) + \
-	# 					(actual_qty * sle.incoming_rate)
-    #
-	# 				self.valuation_rate = new_stock_value / new_stock_qty
-    #
-	# 		elif sle.outgoing_rate:
-	# 			if new_stock_qty:
-	# 				new_stock_value = (self.qty_after_transaction * self.valuation_rate) + \
-	# 					(actual_qty * sle.outgoing_rate)
-    #
-	# 				self.valuation_rate = new_stock_value / new_stock_qty
-	# 			else:
-	# 				self.valuation_rate = sle.outgoing_rate
-    #
-	# 	else:
-	# 		if flt(self.qty_after_transaction) >= 0 and sle.outgoing_rate:
-	# 			self.valuation_rate = sle.outgoing_rate
-    #
-	# 		if not self.valuation_rate and actual_qty > 0:
-	# 			self.valuation_rate = sle.incoming_rate
-    #
-	# 		# Get valuation rate from previous SLE or Item master, if item does not have the
-	# 		# allow zero valuration rate flag set
-	# 		if not self.valuation_rate and sle.voucher_detail_no:
-	# 			allow_zero_valuation_rate = self.check_if_allow_zero_valuation_rate(sle.voucher_type, sle.voucher_detail_no)
-	# 			if not allow_zero_valuation_rate:
-	# 				self.valuation_rate = get_valuation_rate(sle.item_code, sle.warehouse,
-	# 					sle.voucher_type, sle.voucher_no, self.allow_zero_rate,
-	# 					currency=erpnext.get_company_currency(sle.company))
-
 	def get_fifo_values(self, sle):
 		actual_qty = flt(sle.actual_qty)
 
@@ -197,8 +159,6 @@ class update_entries_after(object):
 				if not self.stock_queue:
 					# Get valuation rate from last sle if exists or from valuation rate field in item master
 					self.stock_queue.append([0])
-
-				index = None
 
 	def get_sle_before_datetime(self):
 		"""get previous stock ledger entry before current time-bucket"""

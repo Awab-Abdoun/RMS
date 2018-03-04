@@ -13,6 +13,8 @@ from rms.stock.stock_balance import update_bin_qty, get_indented_qty
 from rms.manufacturing.doctype.production_order.production_order import get_item_details
 from rms.controllers.stock_controller import StockController
 
+from rms.stock.doctype.item.item import validate_end_of_life
+
 form_grid_templates = {
 	"items": "templates/form_grid/material_request_grid.html"
 }
@@ -27,7 +29,7 @@ class MaterialRequest(StockController):
 	# Validate
 	# ---------------------
 	def validate(self):
-		super(MaterialRequest, self).validate()
+		# super(MaterialRequest, self).validate()
 
 		self.validate_schedule_date()
 
@@ -39,12 +41,42 @@ class MaterialRequest(StockController):
 			["Draft", "Submitted", "Stopped", "Cancelled", "Pending",
 			"Partially Ordered", "Ordered", "Issued", "Transferred"])
 
-		# validate_for_items(self)
+		validate_for_items(self)
 
 		# self.set_title()
 		# self.validate_qty_against_so()
 		# NOTE: Since Item BOM and FG quantities are combined, using current data, it cannot be validated
 		# Though the creation of Material Request from a Production Plan can be rethought to fix this
+
+	def validate_for_items(self):
+		items = []
+		for d in self.get("items"):
+			if not d.qty:
+				frappe.throw(_("Please enter quantity for Item {0}").format(d.item_code))
+
+			# update with latest quantities
+			bin = frappe.db.sql("""select projected_qty from `tabBin` where
+				item_code = %s and warehouse = %s""", (d.item_code, d.warehouse), as_dict=1)
+
+			f_lst ={'projected_qty': bin and flt(bin[0]['projected_qty']) or 0, 'ordered_qty': 0, 'received_qty' : 0}
+			for x in f_lst :
+				if d.meta.get_field(x):
+					d.set(x, f_lst[x])
+
+			item = frappe.db.sql("""select is_stock_item,
+				end_of_life, disabled from `tabItem` where name=%s""",
+				d.item_code, as_dict=1)[0]
+
+			validate_end_of_life(d.item_code, item.end_of_life, item.disabled)
+
+			# validate stock item
+			if item.is_stock_item==1 and d.qty and not d.warehouse:
+				frappe.throw(_("Warehouse is mandatory for stock Item {0} in row {1}").format(d.item_code, d.idx))
+
+			items.append(cstr(d.item_code))
+
+		if items and len(items) != len(set(items)):
+			frappe.throw(_("Same item cannot be entered multiple times."))
 
 	def validate_schedule_date(self):
 		if not self.schedule_date:

@@ -10,7 +10,8 @@ import itertools
 from frappe import msgprint, _
 from frappe.utils import (cstr, flt, cint, getdate, now_datetime, formatdate,
 	strip, get_timestamp, random_string)
-from rms.setup.doctype.item_group.item_group import invalidate_cache_for
+from rms.setup.doctype.item_group.item_group import invalidate_cache_for, get_parent_item_groups
+from frappe.website.render import clear_cache
 from frappe.utils.html_utils import clean_html
 from frappe.model.document import Document
 
@@ -39,7 +40,6 @@ class Item(Document):
 
 	def after_insert(self):
 		'''set opening stock'''
-
 		if self.opening_stock:
 			self.set_opening_stock()
 
@@ -54,20 +54,22 @@ class Item(Document):
 		if not self.description:
 			self.description = self.item_name
 
-		self.validate_description()
+		# self.validate_description()
 		self.check_for_active_boms()
 		self.update_bom_item_desc()
+		self.synced_with_hub = 0
 
 		if not self.get("__islocal"):
 			self.old_item_group = frappe.db.get_value(self.doctype, self.name, "item_group")
 
 	def on_update(self):
 		invalidate_cache_for_item(self)
+		self.validate_name_with_item_group()
 
-	def validate_description(self):
-		'''Clean HTML description if set'''
-		if cint(frappe.db.get_single_value('Stock Settings', 'clean_description_html')):
-			self.description = clean_html(self.description)
+	# def validate_description(self):
+	# 	'''Clean HTML description if set'''
+	# 	if cint(frappe.db.get_single_value('Stock Settings', 'clean_description_html')):
+	# 		self.description = clean_html(self.description)
 
 	def set_opening_stock(self):
 		'''set opening stock'''
@@ -77,13 +79,19 @@ class Item(Document):
 		from rms.stock.doctype.stock_entry.stock_entry_utils import make_stock_entry
 
 		# default warehouse, or Stores
-		default_warehouse = (self.default_warehouse)
+		default_warehouse = (self.default_warehouse 
+			or frappe.db.get_value('Warehouse', {'warehouse_name': _('Stores')}))
 
 		if default_warehouse:
 			stock_entry = make_stock_entry(item_code=self.name, target=default_warehouse,
 				qty=self.opening_stock)
 
 			stock_entry.add_comment("Comment", _("Opening Stock"))
+
+	def make_route(self):
+		if not self.route:
+			return cstr(frappe.db.get_value('Item Group', self.item_group,
+				'route')) + '/' + self.scrub((self.item_name if self.item_name else self.item_code) + '-' + random_string(5))
 
 	def check_for_active_boms(self):
 		if self.default_bom:
@@ -96,6 +104,11 @@ class Item(Document):
 			self._stock_ledger_created = len(frappe.db.sql("""select name from `tabStock Ledger Entry`
 				where item_code = %s limit 1""", self.name))
 		return self._stock_ledger_created
+
+	def validate_name_with_item_group(self):
+		# causes problem with tree build
+		if frappe.db.exists("Item Group", self.name):
+			frappe.throw(_("An Item Group exists with same name, please change the item name or rename the item group"))
 
 	def on_trash(self):
 		# super(Item, self).on_trash()
@@ -119,7 +132,7 @@ class Item(Document):
 	def after_rename(self, old_name, new_name, merge):
 		if self.route:
 			invalidate_cache_for_item(self)
-			# clear_cache(self.route)
+			clear_cache(self.route)
 
 		frappe.db.set_value("Item", new_name, "item_code", new_name)
 

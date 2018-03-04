@@ -203,8 +203,7 @@ def get_items(warehouse, posting_date, posting_time):
 
 	res = []
 	for item in set(items):
-		stock_bal = get_stock_balance(item[0], warehouse, posting_date, posting_time,
-			with_valuation_rate=True)
+		stock_bal = get_stock_balance(item[0], warehouse, posting_date, posting_time)
 
 		if frappe.db.get_value("Item",item[0],"disabled") == 0:
 

@@ -15,7 +15,6 @@ def get_item_details(args):
 			"warehouse": None,
 			"doctype": "",
 			"name": "",
-			"is_subcontracted": "Yes" / "No",
 			"project": ""
 		}
 	"""
@@ -39,11 +38,6 @@ def get_item_details(args):
 		out.schedule_date = out.lead_time_date = add_days(args.transaction_date,
 			item.lead_time_days)
 
-	if args.get("is_subcontracted") == "Yes":
-		out.bom = args.get('bom') or get_default_bom(args.item_code)
-
-	get_gross_profit(out)
-
 	return out
 
 def process_args(args):
@@ -52,18 +46,16 @@ def process_args(args):
 
 	args = frappe._dict(args)
 
-	set_transaction_type(args)
 	return args
 
 
-@frappe.whitelist()
-def get_item_code():
+# @frappe.whitelist()
+# def get_item_code():
 
-	return item_code
+# 	return item_code
 
 
 def validate_item_details(args, item):
-
 	from rms.stock.doctype.item.item import validate_end_of_life
 	validate_end_of_life(item.name, item.end_of_life, item.disabled)
 
@@ -74,11 +66,9 @@ def get_basic_details(args, item):
 			"warehouse": None,
 			"doctype": "",
 			"name": "",
-			"is_subcontracted": "Yes" / "No",
 			"project": "",
 			warehouse: "",
 			update_stock: "",
-			company: "",
 			project: "",
 			qty: "",
 			stock_qty: ""
@@ -103,6 +93,7 @@ def get_basic_details(args, item):
 		"description": cstr(item.description).strip(),
 		"image": cstr(item.image).strip(),
 		"warehouse": warehouse,
+		"min_order_qty": flt(item.min_order_qty) if args.doctype == "Material Request" else "",
 		"qty": args.qty or 1.0,
 		"stock_qty": args.qty or 1.0
 	})
@@ -123,13 +114,13 @@ def get_bin_details(item_code, warehouse):
 			["projected_qty", "actual_qty"], as_dict=True) \
 			or {"projected_qty": 0, "actual_qty": 0}
 
-@frappe.whitelist()
-def get_bin_details_and_serial_nos(item_code, warehouse, stock_qty=None):
-	bin_details_and_serial_nos = {}
-	bin_details_and_serial_nos.update(get_bin_details(item_code, warehouse))
-	if stock_qty > 0:
-		bin_details_and_serial_nos.update(get_serial_no_details(item_code, warehouse, stock_qty))
-	return bin_details_and_serial_nos
+# @frappe.whitelist()
+# def get_bin_details_and_serial_nos(item_code, warehouse, stock_qty=None):
+# 	bin_details_and_serial_nos = {}
+# 	bin_details_and_serial_nos.update(get_bin_details(item_code, warehouse))
+# 	if stock_qty > 0:
+# 		bin_details_and_serial_nos.update(get_serial_no_details(item_code, warehouse, stock_qty))
+# 	return bin_details_and_serial_nos
 
 @frappe.whitelist()
 def get_default_bom(item_code=None):

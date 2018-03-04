@@ -6,7 +6,7 @@ from frappe.utils import flt, cstr, nowdate, nowtime
 from rms.stock.utils import update_bin
 from rms.stock.stock_ledger import update_entries_after
 
-def repost():
+def repost(only_actual=False, only_bin=False):
 	"""
 	Repost everything!
 	"""
@@ -17,23 +17,30 @@ def repost():
 		union
 		select item_code, warehouse from `tabStock Ledger Entry`) a"""):
 			try:
-				repost_stock(d[0], d[1], allow_zero_rate, only_actual, only_bin)
+				repost_stock(d[0], d[1], only_actual, only_bin)
 				frappe.db.commit()
 			except:
 				frappe.db.rollback()
 
 	frappe.db.auto_commit_on_many_writes = 0
 
-def repost_stock(item_code, warehouse):
-	if item_code and warehouse:
+def repost_stock(item_code, warehouse, only_actual=False, only_bin=False):
+	if not only_bin:
+		repost_actual_qty(item_code, warehouse)
+
+	if item_code and warehouse and not only_actual:
 		qty_dict = {
-			"reserved_qty": get_reserved_qty(item_code, warehouse),
+			# "reserved_qty": get_reserved_qty(item_code, warehouse),
 			"indented_qty": get_indented_qty(item_code, warehouse),
-			"ordered_qty": get_ordered_qty(item_code, warehouse),
+			# "ordered_qty": get_ordered_qty(item_code, warehouse),
 			"planned_qty": get_planned_qty(item_code, warehouse)
 		}
+		if only_bin:
+			qty_dict.update({
+				"actual_qty": get_balance_qty_from_sle(item_code, warehouse)
+			})
 
-	update_bin_qty(item_code, warehouse, qty_dict)
+		update_bin_qty(item_code, warehouse, qty_dict)
 
 def repost_actual_qty(item_code, warehouse):
 	try:

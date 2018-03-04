@@ -98,7 +98,6 @@ class ProductionOrder(Document):
 			self.db_set(fieldname, qty)
 
 	def on_submit(self):
-
 		if not self.wip_warehouse:
 			frappe.throw(_("Work-in-Progress Warehouse is required before Submit"))
 		if not self.fg_warehouse:

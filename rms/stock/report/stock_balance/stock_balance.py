@@ -94,7 +94,7 @@ def get_stock_ledger_entries(filters):
 			sle.item_code, warehouse, sle.posting_date, sle.actual_qty,
 			sle.voucher_type, sle.qty_after_transaction
 		from
-			`tabStock Ledger Entry` sle %s
+			`tabStock Ledger Entry` sle force index (posting_sort_index) %s
 		where sle.docstatus < 2 %s
 		order by sle.posting_date, sle.posting_time, sle.name""" %
 		(join_table_query, conditions), as_dict=1)
@@ -147,8 +147,6 @@ def filter_items_with_no_transactions(iwb_map):
 		for key, val in qty_dict.items():
 			val = flt(val, float_precision)
 			qty_dict[key] = val
-			if key != "val_rate" and val:
-				no_transactions = False
 
 		if no_transactions:
 			iwb_map.pop((item, warehouse))

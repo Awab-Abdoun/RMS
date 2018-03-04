@@ -54,6 +54,8 @@ class Warehouse(NestedSet):
 	def before_rename(self, old_name, new_name, merge=False):
 		super(Warehouse, self).before_rename(old_name, new_name, merge)
 
+		new_warehouse = new_name
+
 		if merge:
 			if not frappe.db.exists("Warehouse", new_warehouse):
 				frappe.throw(_("Warehouse {0} does not exist").format(new_warehouse))

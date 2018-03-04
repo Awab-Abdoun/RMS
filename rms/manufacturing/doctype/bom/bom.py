@@ -34,7 +34,7 @@ class BOM(Document):
 		self.name = 'BOM-' + self.item + ('-%.3i' % idx)
 
 	def validate(self):
-		self.route = frappe.scrub(self.name).replace('_', '-')
+		# self.route = frappe.scrub(self.name).replace('_', '-')
 		self.clear_operations()
 		self.validate_main_item()
 		self.update_stock_qty()
@@ -340,7 +340,7 @@ def get_bom_items_as_dict(bom, qty=1, fetch_exploded=1, fetch_scrap_items=0):
 
 	if fetch_exploded:
 		query = query.format(table="BOM Explosion Item",
-			where_conditions="""and item.is_sub_contracted_item = 0""",
+			where_conditions="",
 			select_columns = ", bom_item.source_warehouse, (Select idx from `tabBOM Item` where item_code = bom_item.item_code and parent = %(parent)s ) as idx")
 		items = frappe.db.sql(query, { "parent": bom, "qty": qty,	"bom": bom }, as_dict=True)
 	elif fetch_scrap_items:

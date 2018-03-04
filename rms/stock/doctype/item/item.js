@@ -5,16 +5,10 @@ frappe.provide("rms.item");
 
 frappe.ui.form.on('Item', {
 	setup: function(frm) {
-		frm.add_fetch('attribute', 'numeric_values', 'numeric_values');
-		frm.add_fetch('attribute', 'from_range', 'from_range');
-		frm.add_fetch('attribute', 'to_range', 'to_range');
-		frm.add_fetch('attribute', 'increment', 'increment');
+		
 	},
 	onload: function(frm) {
 		rms.item.setup_queries(frm);
-		if (frm.doc.variant_of){
-			frm.fields_dict["attributes"].grid.set_column_disp("attribute_value", true);
-		}
 
 	},
 
@@ -40,9 +34,7 @@ frappe.ui.form.on('Item', {
 			}, __("View"));
 		}
 
-		if(!frm.doc.is_fixed_asset) {
-			rms.item.make_dashboard(frm);
-		}
+		rms.item.make_dashboard(frm);
 
 		// clear intro
 		frm.set_intro();
@@ -97,14 +89,6 @@ frappe.ui.form.on('Item', {
 
 });
 
-frappe.ui.form.on('Item Reorder', {
-	reorder_levels_add: function(frm, cdt, cdn) {
-		var row = frappe.get_doc(cdt, cdn);
-		var type = frm.doc.default_material_request_type
-		row.material_request_type = (type == 'Material Transfer')? 'Transfer' : type;
-	}
-})
-
 $.extend(rms.item, {
 	setup_queries: function(frm) {
 
@@ -121,29 +105,6 @@ $.extend(rms.item, {
 				filters: { "is_group": 0 }
 			}
 		}
-
-		frm.fields_dict.reorder_levels.grid.get_field("warehouse_group").get_query = function(doc, cdt, cdn) {
-			return {
-				filters: { "is_group": 1 }
-			}
-		}
-
-		frm.fields_dict.reorder_levels.grid.get_field("warehouse").get_query = function(doc, cdt, cdn) {
-			var d = locals[cdt][cdn];
-
-			var filters = {
-				"is_group": 0
-			}
-
-			if (d.parent_warehouse) {
-				filters.extend({"parent_warehouse": d.warehouse_group})
-			}
-
-			return {
-				filters: filters
-			}
-		}
-
 	},
 
 	make_dashboard: function(frm) {

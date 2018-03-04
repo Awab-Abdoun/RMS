@@ -39,12 +39,6 @@ frappe.ui.form.on('Stock Entry', {
 				});
 			});
 		}
-
-		if(frm.doc.docstatus==1 && frm.doc.purpose == "Material Receipt") {
-			frm.add_custom_button(__('Make Retention Stock Entry'), function () {
-				frm.trigger("make_retention_stock_entry");
-			});
-		}
 	},
 
 	purpose: function(frm) {
@@ -67,16 +61,16 @@ frappe.ui.form.on('Stock Entry', {
 						'posting_time': frm.doc.posting_time
 					}
 				},
-				// callback: function(r) {
-				// 	if (!r.exc) {
-				// 		$.extend(child, r.message);
-				// 		frm.events.calculate_basic_amount(frm, child);
-				// 	}
-        //
-				// 	if (callback) {
-				// 		callback();
-				// 	}
-				// }
+				callback: function(r) {
+					if (!r.exc) {
+						$.extend(child, r.message);
+						
+					}
+        
+					if (callback) {
+						callback();
+					}
+				}
 			});
 		}
 	},

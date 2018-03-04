@@ -80,6 +80,10 @@ class StockEntry(StockController):
 				"project": self.project, 's_warehouse': item.s_warehouse}),
 				for_update=True)
 
+			for f in ("description", "item_name"):
+					if not item.get(f):
+						item.set(f, item_details.get(f))
+
 			if not item.transfer_qty and item.qty:
 				item.transfer_qty = item.qty
 
@@ -96,8 +100,8 @@ class StockEntry(StockController):
 	def validate_warehouse(self):
 		"""perform various (sometimes conditional) validations on warehouse"""
 
-		source_mandatory = ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
-		target_mandatory = ["Material Receipt", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
+		source_mandatory = ["Material Issue", "Material Transfer", "Material Transfer for Manufacture"]
+		target_mandatory = ["Material Receipt", "Material Transfer", "Material Transfer for Manufacture"]
 
 		validate_for_manufacture_repack = any([d.bom_no for d in self.get("items")])
 
@@ -333,7 +337,7 @@ class StockEntry(StockController):
 
 		if self.bom_no:
 			if self.purpose in ["Material Issue", "Material Transfer", "Manufacture", "Repack",
-					"Subcontract", "Material Transfer for Manufacture"]:
+					"Material Transfer for Manufacture"]:
 				if self.production_order and self.purpose == "Material Transfer for Manufacture":
 					item_dict = self.get_pending_raw_materials()
 					if self.to_warehouse and self.pro_doc:
@@ -352,8 +356,6 @@ class StockEntry(StockController):
 					for item in item_dict.values():
 						if self.pro_doc and not self.pro_doc.skip_transfer:
 							item["from_warehouse"] = self.pro_doc.wip_warehouse
-
-						item["to_warehouse"] = self.to_warehouse if self.purpose=="Subcontract" else ""
 
 					self.add_to_stock_entry_detail(item_dict)
 
