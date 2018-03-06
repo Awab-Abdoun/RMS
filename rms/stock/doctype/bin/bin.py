@@ -17,7 +17,7 @@ class Bin(Document):
 		update_item_projected_qty(self.item_code)
 
 	def validate_mandatory(self):
-		qf = ['actual_qty', 'reserved_qty', 'ordered_qty', 'indented_qty']
+		qf = ['actual_qty', 'indented_qty']
 		for f in qf:
 			if (not getattr(self, f, None)) or (not self.get(f)):
 				self.set(f, 0.0)
@@ -51,8 +51,6 @@ class Bin(Document):
 		else:
 			self.actual_qty = flt(self.actual_qty) + flt(args.get("actual_qty"))
 
-		self.ordered_qty = flt(self.ordered_qty) + flt(args.get("ordered_qty"))
-		self.reserved_qty = flt(self.reserved_qty) + flt(args.get("reserved_qty"))
 		self.indented_qty = flt(self.indented_qty) + flt(args.get("indented_qty"))
 		self.planned_qty = flt(self.planned_qty) + flt(args.get("planned_qty"))
 
@@ -60,8 +58,8 @@ class Bin(Document):
 		self.db_update()
 
 	def set_projected_qty(self):
-		self.projected_qty = (flt(self.actual_qty) + flt(self.ordered_qty)
-			+ flt(self.indented_qty) + flt(self.planned_qty) - flt(self.reserved_qty)
+		self.projected_qty = (flt(self.actual_qty)
+			+ flt(self.indented_qty) + flt(self.planned_qty)
 			- flt(self.reserved_qty_for_production))
 
 	def get_first_sle(self):

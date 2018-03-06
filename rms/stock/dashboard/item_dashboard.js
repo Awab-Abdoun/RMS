@@ -87,9 +87,9 @@ rms.stock.ItemDashboard = Class.extend({
 		if(!max_count) max_count = 0;
 		if(!data) data = [];
 		data.forEach(function(d) {
-			d.actual_or_pending = d.projected_qty + d.reserved_qty + d.reserved_qty_for_production;
+			d.actual_or_pending = d.projected_qty + d.reserved_qty_for_production;
 			d.pending_qty = 0;
-			d.total_reserved = d.reserved_qty + d.reserved_qty_for_production;
+			d.total_reserved = d.reserved_qty_for_production;
 			if(d.actual_or_pending > d.actual_qty) {
 				d.pending_qty = d.actual_or_pending - d.actual_qty;
 			}

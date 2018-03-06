@@ -87,8 +87,8 @@ dump_report_map = "rms.startup.report_data_map.data_map"
 
 doc_events = {
 	"Stock Entry": {
-		"on_submit": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty",
-		"on_cancel": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty"
+		# "on_submit": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty",
+		# "on_cancel": "rms.stock.doctype.material_request.material_request.update_completed_and_requested_qty"
 	}
 }
 

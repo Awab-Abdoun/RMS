@@ -44,7 +44,7 @@ class StockEntry(StockController):
 		self.validate_production_order()
 		self.validate_bom()
 		self.validate_finished_goods()
-		self.validate_with_material_request()
+		# self.validate_with_material_request()
 
 		self.set_actual_qty()
 
@@ -558,16 +558,16 @@ class StockEntry(StockController):
 			# to be assigned for finished item
 			se_child.bom_no = bom_no
 
-	def validate_with_material_request(self):
-		for item in self.get("items"):
-			if item.material_request:
-				mreq_item = frappe.db.get_value("Material Request Item",
-					{"name": item.material_request_item, "parent": item.material_request},
-					["item_code", "warehouse", "idx"], as_dict=True)
-				if mreq_item.item_code != item.item_code or \
-				mreq_item.warehouse != (item.s_warehouse if self.purpose== "Material Issue" else item.t_warehouse):
-					frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
-						frappe.MappingMismatchError)
+	# def validate_with_material_request(self):
+	# 	for item in self.get("items"):
+	# 		if item.material_request:
+	# 			mreq_item = frappe.db.get_value("Material Request Item",
+	# 				{"name": item.material_request_item, "parent": item.material_request},
+	# 				["item_code", "warehouse", "idx"], as_dict=True)
+	# 			if mreq_item.item_code != item.item_code or \
+	# 			mreq_item.warehouse != (item.s_warehouse if self.purpose== "Material Issue" else item.t_warehouse):
+	# 				frappe.throw(_("Item or Warehouse for row {0} does not match Material Request").format(item.idx),
+	# 					frappe.MappingMismatchError)
 
 @frappe.whitelist()
 def get_production_order_details(production_order):

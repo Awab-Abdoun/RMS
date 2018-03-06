@@ -96,8 +96,8 @@ def get_opening_balance(filters, columns):
 
 	row = [""]*len(columns)
 	row[1] = _("'Opening'")
-	for i, v in ((9, 'qty_after_transaction')):
-			row[i] = last_entry.get(v, 0)
+	for v in ((9, 'qty_after_transaction')):
+			row = last_entry.get(v, 0)
 
 	return row
 

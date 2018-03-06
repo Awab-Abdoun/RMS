@@ -57,17 +57,17 @@ data_map = {
 			"warehouse": ["Warehouse", "name"]
 		},
 	},
-	"Material Request Item": {
-		"columns": ["item.name as name", "item_code", "warehouse",
-			"(qty - ordered_qty) as qty"],
-		"from": "`tabMaterial Request Item` item, `tabMaterial Request` main",
-		"conditions": ["item.parent = main.name", "main.docstatus=1", "main.status != 'Stopped'",
-			"ifnull(warehouse, '')!=''", "qty > ordered_qty"],
-		"links": {
-			"item_code": ["Item", "name"],
-			"warehouse": ["Warehouse", "name"]
-		},
-	},
+	# "Material Request Item": {
+	# 	"columns": ["item.name as name", "item_code", "warehouse",
+	# 		"(qty - ordered_qty) as qty"],
+	# 	"from": "`tabMaterial Request Item` item, `tabMaterial Request` main",
+	# 	"conditions": ["item.parent = main.name", "main.docstatus=1", "main.status != 'Stopped'",
+	# 		"ifnull(warehouse, '')!=''", "qty > ordered_qty"],
+	# 	"links": {
+	# 		"item_code": ["Item", "name"],
+	# 		"warehouse": ["Warehouse", "name"]
+	# 	},
+	# },
 
 	# Manufacturing
 	"Production Order": {

@@ -101,14 +101,14 @@ def get_balance_qty_from_sle(item_code, warehouse):
 #
 # 	return flt(reserved_qty[0][0]) if reserved_qty else 0
 
-def get_indented_qty(item_code, warehouse):
-	indented_qty = frappe.db.sql("""select sum(mr_item.qty - mr_item.ordered_qty)
-		from `tabMaterial Request Item` mr_item, `tabMaterial Request` mr
-		where mr_item.item_code=%s and mr_item.warehouse=%s
-		and mr_item.qty > mr_item.ordered_qty and mr_item.parent=mr.name
-		and mr.status!='Stopped' and mr.docstatus=1""", (item_code, warehouse))
+# def get_indented_qty(item_code, warehouse):
+# 	indented_qty = frappe.db.sql("""select sum(mr_item.qty - mr_item.ordered_qty)
+# 		from `tabMaterial Request Item` mr_item, `tabMaterial Request` mr
+# 		where mr_item.item_code=%s and mr_item.warehouse=%s
+# 		and mr_item.qty > mr_item.ordered_qty and mr_item.parent=mr.name
+# 		and mr.status!='Stopped' and mr.docstatus=1""", (item_code, warehouse))
 
-	return flt(indented_qty[0][0]) if indented_qty else 0
+# 	return flt(indented_qty[0][0]) if indented_qty else 0
 
 # def get_ordered_qty(item_code, warehouse):
 # 	ordered_qty = frappe.db.sql("""
@@ -140,9 +140,8 @@ def update_bin_qty(item_code, warehouse, qty_dict=None):
 			mismatch = True
 
 	if mismatch:
-		bin.projected_qty = (flt(bin.actual_qty) + flt(bin.ordered_qty) +
-			flt(bin.indented_qty) + flt(bin.planned_qty) - flt(bin.reserved_qty)
-			- flt(bin.reserved_qty_for_production))
+		bin.projected_qty = (flt(bin.actual_qty) +
+			flt(bin.indented_qty) + flt(bin.planned_qty))
 
 		bin.save()
 

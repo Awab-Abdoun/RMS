@@ -104,14 +104,14 @@ class ProductionOrder(Document):
 			frappe.throw(_("For Warehouse is required before Submit"))
 
 		self.update_reserved_qty_for_production()
-		self.update_completed_qty_in_material_request()
+		# self.update_completed_qty_in_material_request()
 		self.update_planned_qty()
 
 	def on_cancel(self):
 		self.validate_cancel()
 
 		frappe.db.set(self,'status', 'Cancelled')
-		self.update_completed_qty_in_material_request()
+		# self.update_completed_qty_in_material_request()
 		self.update_planned_qty()
 		self.update_reserved_qty_for_production()
 
@@ -130,13 +130,13 @@ class ProductionOrder(Document):
 			"planned_qty": get_planned_qty(self.production_item, self.fg_warehouse)
 		})
 
-		if self.material_request:
-			mr_obj = frappe.get_doc("Material Request", self.material_request)
-			mr_obj.update_requested_qty([self.material_request_item])
+		# if self.material_request:
+		# 	mr_obj = frappe.get_doc("Material Request", self.material_request)
+		# 	mr_obj.update_requested_qty([self.material_request_item])
 
-	def update_completed_qty_in_material_request(self):
-		if self.material_request:
-			frappe.get_doc("Material Request", self.material_request).update_completed_qty([self.material_request_item])
+	# def update_completed_qty_in_material_request(self):
+	# 	if self.material_request:
+	# 		frappe.get_doc("Material Request", self.material_request).update_completed_qty([self.material_request_item])
 
 	def set_production_order_operations(self):
 		"""Fetch operations from BOM and set in 'Production Order'"""

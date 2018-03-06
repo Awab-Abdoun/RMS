@@ -82,10 +82,10 @@ def get_basic_details(args, item):
 
 	warehouse = item.default_warehouse or args.warehouse
 
-	material_request_type = ''
-	if args.get('doctype') == "Material Request":
-		material_request_type = frappe.db.get_value('Material Request',
-			args.get('name'), 'material_request_type')
+	# material_request_type = ''
+	# if args.get('doctype') == "Material Request":
+	# 	material_request_type = frappe.db.get_value('Material Request',
+	# 		args.get('name'), 'material_request_type')
 
 	out = frappe._dict({
 		"item_code": item.name,
@@ -93,7 +93,7 @@ def get_basic_details(args, item):
 		"description": cstr(item.description).strip(),
 		"image": cstr(item.image).strip(),
 		"warehouse": warehouse,
-		"min_order_qty": flt(item.min_order_qty) if args.doctype == "Material Request" else "",
+		# "min_order_qty": flt(item.min_order_qty) if args.doctype == "Material Request" else "",
 		"qty": args.qty or 1.0,
 		"stock_qty": args.qty or 1.0
 	})

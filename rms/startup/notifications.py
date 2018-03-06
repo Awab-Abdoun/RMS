@@ -8,11 +8,11 @@ def get_notification_config():
 			"Project": {"status": "Open"},
 			"Item": {"total_projected_qty": ("<", 0)},
 			"Stock Entry": {"docstatus": 0},
-			"Material Request": {
-				"docstatus": ("<", 2),
-				"status": ("not in", ("Stopped",)),
-				"per_ordered": ("<", 100)
-			},
+			# "Material Request": {
+			# 	"docstatus": ("<", 2),
+			# 	"status": ("not in", ("Stopped",)),
+			# 	"per_ordered": ("<", 100)
+			# },
 			"Production Order": { "status": ("in", ("Draft", "Not Started", "In Process")) },
 			"BOM": {"docstatus": 0},
 

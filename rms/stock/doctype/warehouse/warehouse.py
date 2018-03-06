@@ -29,7 +29,7 @@ class Warehouse(NestedSet):
 		bins = frappe.db.sql("select * from `tabBin` where warehouse = %s",
 			self.name, as_dict=1)
 		for d in bins:
-			if d['actual_qty'] or d['reserved_qty'] or d['ordered_qty'] or \
+			if d['actual_qty'] or \
 					d['indented_qty'] or d['projected_qty'] or d['planned_qty']:
 				throw(_("Warehouse {0} can not be deleted as quantity exists for Item {1}").format(self.name, d['item_code']))
 			else:

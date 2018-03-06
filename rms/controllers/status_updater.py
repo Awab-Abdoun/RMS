@@ -9,18 +9,18 @@ def validate_status(status, options):
 	if status not in options:
 		frappe.throw(_("Status must be one of {0}").format(comma_or(options)))
 
-status_map = {
-	"Material Request": [
-		["Draft", None],
-		["Stopped", "eval:self.status == 'Stopped'"],
-		["Cancelled", "eval:self.docstatus == 2"],
-		["Pending", "eval:self.status != 'Stopped' and self.per_ordered == 0 and self.docstatus == 1"],
-		["Partially Ordered", "eval:self.status != 'Stopped' and self.per_ordered < 100 and self.per_ordered > 0 and self.docstatus == 1"],
-		["Ordered", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
-		["Transferred", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Transfer'"],
-		["Issued", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Issue'"]
-	]
-}
+# status_map = {
+# 	"Material Request": [
+# 		["Draft", None],
+# 		["Stopped", "eval:self.status == 'Stopped'"],
+# 		["Cancelled", "eval:self.docstatus == 2"],
+# 		["Pending", "eval:self.status != 'Stopped' and self.per_ordered == 0 and self.docstatus == 1"],
+# 		["Partially Ordered", "eval:self.status != 'Stopped' and self.per_ordered < 100 and self.per_ordered > 0 and self.docstatus == 1"],
+# 		["Ordered", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Purchase'"],
+# 		["Transferred", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Transfer'"],
+# 		["Issued", "eval:self.status != 'Stopped' and self.per_ordered == 100 and self.docstatus == 1 and self.material_request_type == 'Material Issue'"]
+# 	]
+# }
 
 class StatusUpdater(Document):
 	"""
@@ -34,39 +34,39 @@ class StatusUpdater(Document):
 		self.update_qty()
 		self.validate_qty()
 
-	def set_status(self, update=False, status=None, update_modified=True):
-		if self.is_new():
-			if self.get('amended_from'):
-				self.status = 'Draft'
-			return
+	# def set_status(self, update=False, status=None, update_modified=True):
+	# 	if self.is_new():
+	# 		if self.get('amended_from'):
+	# 			self.status = 'Draft'
+	# 		return
 
-		if self.doctype in status_map:
-			_status = self.status
+	# 	if self.doctype in status_map:
+	# 		_status = self.status
 
-			if status and update:
-				self.db_set("status", status)
+	# 		if status and update:
+	# 			self.db_set("status", status)
 
-			sl = status_map[self.doctype][:]
-			sl.reverse()
-			for s in sl:
-				if not s[1]:
-					self.status = s[0]
-					break
-				elif s[1].startswith("eval:"):
-					if frappe.safe_eval(s[1][5:], None, { "self": self.as_dict(), "getdate": getdate,
-							"nowdate": nowdate, "get_value": frappe.db.get_value }):
-						self.status = s[0]
-						break
-				elif getattr(self, s[1])():
-					self.status = s[0]
-					break
+	# 		sl = status_map[self.doctype][:]
+	# 		sl.reverse()
+	# 		for s in sl:
+	# 			if not s[1]:
+	# 				self.status = s[0]
+	# 				break
+	# 			elif s[1].startswith("eval:"):
+	# 				if frappe.safe_eval(s[1][5:], None, { "self": self.as_dict(), "getdate": getdate,
+	# 						"nowdate": nowdate, "get_value": frappe.db.get_value }):
+	# 					self.status = s[0]
+	# 					break
+	# 			elif getattr(self, s[1])():
+	# 				self.status = s[0]
+	# 				break
 
-			if self.status != _status and self.status not in ("Cancelled", "Partially Ordered",
-																"Ordered", "Issued", "Transferred"):
-				self.add_comment("Label", _(self.status))
+	# 		if self.status != _status and self.status not in ("Cancelled", "Partially Ordered",
+	# 															"Ordered", "Issued", "Transferred"):
+	# 			self.add_comment("Label", _(self.status))
 
-			if update:
-				self.db_set('status', self.status, update_modified = update_modified)
+	# 		if update:
+	# 			self.db_set('status', self.status, update_modified = update_modified)
 
 	def validate_qty(self):
 		"""Validates qty at row level"""
