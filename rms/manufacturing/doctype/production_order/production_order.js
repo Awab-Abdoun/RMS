@@ -1,5 +1,6 @@
 // Copyright (c) 2018, Awab Abdoun and Mohammed Elamged and contributors
 // For license information, please see license.txt
+frappe.provide("rms.manufacturing");
 
 frappe.ui.form.on('Production Order', {
 	setup: function(frm) {
@@ -204,116 +205,116 @@ frappe.ui.form.on("Production Order Operation", {
 	},
 });
 
-// rms.production_order = {
-// 	set_custom_buttons: function(frm) {
-// 		var doc = frm.doc;
-// 		if (doc.docstatus === 1) {
-// 			if (doc.status != 'Stopped' && doc.status != 'Completed') {
-// 				frm.add_custom_button(__('Stop'), function() {
-// 					rms.production_order.stop_production_order(frm, "Stopped");
-// 				}, __("Status"));
-// 			} else if (doc.status == 'Stopped') {
-// 				frm.add_custom_button(__('Re-open'), function() {
-// 					rms.production_order.stop_production_order(frm, "Resumed");
-// 				}, __("Status"));
-// 			}
+rms.production_order = {
+	set_custom_buttons: function(frm) {
+		var doc = frm.doc;
+		if (doc.docstatus === 1) {
+			if (doc.status != 'Stopped' && doc.status != 'Completed') {
+				frm.add_custom_button(__('Stop'), function() {
+					rms.production_order.stop_production_order(frm, "Stopped");
+				}, __("Status"));
+			} else if (doc.status == 'Stopped') {
+				frm.add_custom_button(__('Re-open'), function() {
+					rms.production_order.stop_production_order(frm, "Resumed");
+				}, __("Status"));
+			}
 
-// 			if(!frm.doc.skip_transfer){
-// 				if ((flt(doc.material_transferred_for_manufacturing) < flt(doc.qty))
-// 					&& frm.doc.status != 'Stopped') {
-// 					frm.has_start_btn = true;
-// 					var start_btn = frm.add_custom_button(__('Start'), function() {
-// 						rms.production_order.make_se(frm, 'Material Transfer for Manufacture');
-// 					});
-// 					start_btn.addClass('btn-primary');
-// 				}
-// 			}
+			if(!frm.doc.skip_transfer){
+				if ((flt(doc.material_transferred_for_manufacturing) < flt(doc.qty))
+					&& frm.doc.status != 'Stopped') {
+					frm.has_start_btn = true;
+					var start_btn = frm.add_custom_button(__('Start'), function() {
+						rms.production_order.make_se(frm, 'Material Transfer for Manufacture');
+					});
+					start_btn.addClass('btn-primary');
+				}
+			}
 
-// 			if(!frm.doc.skip_transfer){
-// 				if ((flt(doc.produced_qty) < flt(doc.material_transferred_for_manufacturing))
-// 						&& frm.doc.status != 'Stopped') {
-// 					frm.has_finish_btn = true;
-// 					var finish_btn = frm.add_custom_button(__('Finish'), function() {
-// 						rms.production_order.make_se(frm, 'Manufacture');
-// 					});
+			if(!frm.doc.skip_transfer){
+				if ((flt(doc.produced_qty) < flt(doc.material_transferred_for_manufacturing))
+						&& frm.doc.status != 'Stopped') {
+					frm.has_finish_btn = true;
+					var finish_btn = frm.add_custom_button(__('Finish'), function() {
+						rms.production_order.make_se(frm, 'Manufacture');
+					});
 
-// 					if(doc.material_transferred_for_manufacturing==doc.qty) {
-// 						// all materials transferred for manufacturing, make this primary
-// 						finish_btn.addClass('btn-primary');
-// 					}
-// 				}
-// 			} else {
-// 				if ((flt(doc.produced_qty) < flt(doc.qty)) && frm.doc.status != 'Stopped') {
-// 					frm.has_finish_btn = true;
-// 					var finish_btn = frm.add_custom_button(__('Finish'), function() {
-// 						rms.production_order.make_se(frm, 'Manufacture');
-// 					});
-// 					finish_btn.addClass('btn-primary');
-// 				}
-// 			}
-// 		}
+					if(doc.material_transferred_for_manufacturing==doc.qty) {
+						// all materials transferred for manufacturing, make this primary
+						finish_btn.addClass('btn-primary');
+					}
+				}
+			} else {
+				if ((flt(doc.produced_qty) < flt(doc.qty)) && frm.doc.status != 'Stopped') {
+					frm.has_finish_btn = true;
+					var finish_btn = frm.add_custom_button(__('Finish'), function() {
+						rms.production_order.make_se(frm, 'Manufacture');
+					});
+					finish_btn.addClass('btn-primary');
+				}
+			}
+		}
 
-// 	},
+	},
 
-// 	set_default_warehouse: function(frm) {
-// 		if (!(frm.doc.wip_warehouse || frm.doc.fg_warehouse)) {
-// 			frappe.call({
-// 				method: "rms.manufacturing.doctype.production_order.production_order.get_default_warehouse",
-// 				callback: function(r) {
-// 					if(!r.exe) {
-// 						frm.set_value("wip_warehouse", r.message.wip_warehouse);
-// 						frm.set_value("fg_warehouse", r.message.fg_warehouse)
-// 					}
-// 				}
-// 			});
-// 		}
-// 	},
+	set_default_warehouse: function(frm) {
+		if (!(frm.doc.wip_warehouse || frm.doc.fg_warehouse)) {
+			frappe.call({
+				method: "rms.manufacturing.doctype.production_order.production_order.get_default_warehouse",
+				callback: function(r) {
+					if(!r.exe) {
+						frm.set_value("wip_warehouse", r.message.wip_warehouse);
+						frm.set_value("fg_warehouse", r.message.fg_warehouse)
+					}
+				}
+			});
+		}
+	},
 
-// 	make_se: function(frm, purpose) {
-// 		if(!frm.doc.skip_transfer){
-// 			var max = (purpose === "Manufacture") ?
-// 				flt(frm.doc.material_transferred_for_manufacturing) - flt(frm.doc.produced_qty) :
-// 				flt(frm.doc.qty) - flt(frm.doc.material_transferred_for_manufacturing);
-// 		} else {
-// 			var max = flt(frm.doc.qty) - flt(frm.doc.produced_qty);
-// 		}
+	make_se: function(frm, purpose) {
+		if(!frm.doc.skip_transfer){
+			var max = (purpose === "Manufacture") ?
+				flt(frm.doc.material_transferred_for_manufacturing) - flt(frm.doc.produced_qty) :
+				flt(frm.doc.qty) - flt(frm.doc.material_transferred_for_manufacturing);
+		} else {
+			var max = flt(frm.doc.qty) - flt(frm.doc.produced_qty);
+		}
 
-// 		max = flt(max, precision("qty"));
-// 		frappe.prompt({fieldtype:"Float", label: __("Qty for {0}", [purpose]), fieldname:"qty",
-// 			description: __("Max: {0}", [max]), 'default': max },
-// 			function(data) {
-// 				if(data.qty > max) {
-// 					frappe.msgprint(__("Quantity must not be more than {0}", [max]));
-// 					return;
-// 				}
-// 				frappe.call({
-// 					method:"rms.manufacturing.doctype.production_order.production_order.make_stock_entry",
-// 					args: {
-// 						"production_order_id": frm.doc.name,
-// 						"purpose": purpose,
-// 						"qty": data.qty
-// 					},
-// 					callback: function(r) {
-// 						var doclist = frappe.model.sync(r.message);
-// 						frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
-// 					}
-// 				});
-// 			}, __("Select Quantity"), __("Make"));
-// 	},
+		max = flt(max, precision("qty"));
+		frappe.prompt({fieldtype:"Float", label: __("Qty for {0}", [purpose]), fieldname:"qty",
+			description: __("Max: {0}", [max]), 'default': max },
+			function(data) {
+				if(data.qty > max) {
+					frappe.msgprint(__("Quantity must not be more than {0}", [max]));
+					return;
+				}
+				frappe.call({
+					method:"rms.manufacturing.doctype.production_order.production_order.make_stock_entry",
+					args: {
+						"production_order_id": frm.doc.name,
+						"purpose": purpose,
+						"qty": data.qty
+					},
+					callback: function(r) {
+						var doclist = frappe.model.sync(r.message);
+						frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+					}
+				});
+			}, __("Select Quantity"), __("Make"));
+	},
 
-// 	stop_production_order: function(frm, status) {
-// 		frappe.call({
-// 			method: "rms.manufacturing.doctype.production_order.production_order.stop_unstop",
-// 			args: {
-// 				production_order: frm.doc.name,
-// 				status: status
-// 			},
-// 			callback: function(r) {
-// 				if(r.message) {
-// 					frm.set_value("status", r.message);
-// 					frm.reload_doc();
-// 				}
-// 			}
-// 		})
-// 	}
-// }
+	stop_production_order: function(frm, status) {
+		frappe.call({
+			method: "rms.manufacturing.doctype.production_order.production_order.stop_unstop",
+			args: {
+				production_order: frm.doc.name,
+				status: status
+			},
+			callback: function(r) {
+				if(r.message) {
+					frm.set_value("status", r.message);
+					frm.reload_doc();
+				}
+			}
+		})
+	}
+}

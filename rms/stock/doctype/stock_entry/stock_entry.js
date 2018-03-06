@@ -2,6 +2,7 @@
 // For license information, please see license.txt
 
 frappe.provide("rms.stock");
+frappe.provide("rms.stock_entry");
 
 frappe.ui.form.on('Stock Entry', {
 	setup: function(frm) {
@@ -64,7 +65,7 @@ frappe.ui.form.on('Stock Entry', {
 				callback: function(r) {
 					if (!r.exc) {
 						$.extend(child, r.message);
-						
+
 					}
         
 					if (callback) {

@@ -2,6 +2,7 @@
 // For license information, please see license.txt
 
 frappe.provide("rms.item");
+frappe.provide("rms.stock");
 
 frappe.ui.form.on('Item', {
 	setup: function(frm) {
