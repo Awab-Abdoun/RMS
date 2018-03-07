@@ -116,6 +116,13 @@ def update_bin(args):
 	else:
 		frappe.msgprint(_("Item {0} ignored since it is not a stock item").format(args.get("item_code")))
 
+def get_valuation_method(item_code):
+	"""get valuation method from item or default"""
+	val_method = frappe.db.get_value('Item', item_code, 'valuation_method')
+	if not val_method:
+		val_method = frappe.db.get_value(None, "valuation_method") or "FIFO"
+	return val_method
+
 def is_group_warehouse(warehouse):
 	if frappe.db.get_value("Warehouse", warehouse, "is_group"):
 		frappe.throw(_("Group node warehouse is not allowed to select for transactions"))

@@ -277,7 +277,7 @@ class StockEntry(StockController):
 		if self.docstatus == 2:
 			sl_entries.reverse()
 
-		self.make_sl_entries(sl_entries, self.amended_from)
+		self.make_sl_entries(sl_entries, self.amended_from and 'Yes' or 'No')
 
 	def update_production_order(self):
 		def _validate_production_order(pro_doc):

@@ -147,6 +147,8 @@ def filter_items_with_no_transactions(iwb_map):
 		for key, val in qty_dict.items():
 			val = flt(val, float_precision)
 			qty_dict[key] = val
+			if key != "val_rate" and val:
+				no_transactions = False
 
 		if no_transactions:
 			iwb_map.pop((item, warehouse))

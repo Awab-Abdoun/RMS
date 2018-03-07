@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import frappe, rms
 from frappe import _
 from frappe.utils import cint, flt, cstr, now
+from rms.stock.utils import get_valuation_method
 import json
 
 # future reposting
@@ -87,6 +88,9 @@ class update_entries_after(object):
 			setattr(self, key, flt(self.previous_sle.get(key)))
 
 		self.stock_queue = json.loads(self.previous_sle.stock_queue or "[]")
+		self.valuation_method = get_valuation_method(self.item_code)
+		self.stock_value_difference = 0.0
+		self.qty_after_transaction = 0.0
 		self.build()
 
 	def build(self):
@@ -126,20 +130,59 @@ class update_entries_after(object):
 		bin_doc.save(ignore_permissions=True)
 
 	def process_sle(self, sle):
-		self.qty_after_transaction = sle.qty_after_transaction
+		# self.qty_after_transaction = sle.qty_after_transaction
+		# self.qty_after_transaction += flt(sle.actual_qty)
+		# self.stock_value = flt(self.qty_after_transaction)
+
+		# if not self.validate_negative_stock(sle):
+		# 	self.qty_after_transaction += flt(sle.actual_qty)
+		# 	return
+			
 		if sle.voucher_type=="Stock Reconciliation":
 			# assert
 			self.qty_after_transaction = sle.qty_after_transaction
 			self.stock_queue = [[self.qty_after_transaction]]
 		else:
-			self.get_fifo_values(sle)
-			self.qty_after_transaction += flt(sle.actual_qty)
+			if self.valuation_method == "Moving Average":
+				self.get_moving_average_values(sle)
+				self.qty_after_transaction += flt(sle.actual_qty)
+				self.stock_value = flt(self.qty_after_transaction)
+			else:
+				self.get_fifo_values(sle)
+				self.qty_after_transaction += flt(sle.actual_qty)
 
 		# update current sle
 		sle.qty_after_transaction = self.qty_after_transaction
+		# sle.stock_value = self.stock_value
 		sle.stock_queue = json.dumps(self.stock_queue)
 		sle.doctype="Stock Ledger Entry"
 		frappe.get_doc(sle).db_update()
+
+	def validate_negative_stock(self, sle):
+		"""
+			validate negative stock for entries current datetime onwards
+			will not consider cancelled entries
+		"""
+		diff = self.qty_after_transaction + flt(sle.actual_qty)
+
+		if diff < 0 and abs(diff) > 0.0001:
+			# negative stock!
+			exc = sle.copy().update({"diff": diff})
+			self.exceptions.append(exc)
+			return False
+		else:
+			return True
+
+	def get_moving_average_values(self, sle):
+		actual_qty = flt(sle.actual_qty)
+		new_stock_qty = flt(self.qty_after_transaction) + actual_qty
+		if new_stock_qty >= 0:
+			if actual_qty > 0:
+				if flt(self.qty_after_transaction) <= 0:
+					pass
+				else:
+					new_stock_value = (self.qty_after_transaction) + (actual_qty)
+					self.valuation_rate = new_stock_value / new_stock_qty
 
 	def get_fifo_values(self, sle):
 		actual_qty = flt(sle.actual_qty)
@@ -147,6 +190,8 @@ class update_entries_after(object):
 		if actual_qty > 0:
 			if not self.stock_queue:
 				self.stock_queue.append([0, 0])
+
+			self.stock_queue[-1][0] += actual_qty
 
 			if self.stock_queue[-1][0] > 0:
 				self.stock_queue.append([actual_qty])
@@ -159,6 +204,10 @@ class update_entries_after(object):
 				if not self.stock_queue:
 					# Get valuation rate from last sle if exists or from valuation rate field in item master
 					self.stock_queue.append([0])
+				index = None
+				if index == None:
+					new_stock_qty = sum((d[0] for d in self.stock_queue)) - qty_to_pop
+					break
 
 	def get_sle_before_datetime(self):
 		"""get previous stock ledger entry before current time-bucket"""
