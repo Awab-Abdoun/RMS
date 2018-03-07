@@ -330,8 +330,8 @@ class StockEntry(StockController):
 		self.set('items', [])
 		self.validate_production_order()
 
-		if not self.posting_date or not self.posting_time:
-			frappe.throw(_("Posting date and posting time is mandatory"))
+		# if not self.posting_date or not self.posting_time:
+		# 	frappe.throw(_("Posting date and posting time is mandatory"))
 
 		self.set_production_order_details()
 

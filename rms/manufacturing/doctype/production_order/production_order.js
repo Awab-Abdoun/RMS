@@ -1,5 +1,7 @@
 // Copyright (c) 2018, Awab Abdoun and Mohammed Elamged and contributors
 // For license information, please see license.txt
+
+{% include 'rms/public/js/utils.js' %};
 frappe.provide("rms.manufacturing");
 
 frappe.ui.form.on('Production Order', {
