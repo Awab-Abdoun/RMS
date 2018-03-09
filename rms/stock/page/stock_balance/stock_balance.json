@@ -4,7 +4,7 @@
  "docstatus": 0, 
  "doctype": "Page", 
  "idx": 0, 
- "modified": "2018-01-17 16:00:34.859375", 
+ "modified": "2018-03-09 18:22:23.613611", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "stock-balance", 
@@ -13,6 +13,9 @@
  "roles": [
   {
    "role": "Stock Manager"
+  }, 
+  {
+   "role": "Project Manager"
   }
  ], 
  "script": null, 

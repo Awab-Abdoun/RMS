@@ -84,13 +84,16 @@ class update_entries_after(object):
 		self.previous_sle = self.get_sle_before_datetime()
 		self.previous_sle = self.previous_sle[0] if self.previous_sle else frappe._dict()
 
-		for key in ("qty_after_transaction"):
-			setattr(self, key, flt(self.previous_sle.get(key)))
+		# for key in ("qty_after_transaction", "stock_value"):
+		# 	setattr(self, key, flt(self.previous_sle.get(key)))
 
+		# self.precision = get_field_precision(frappe.get_meta("Stock Ledger Entry").get_field("stock_value"))
+
+		# self.total_qty = flt(args.get("qty_after_transaction"))
 		self.stock_queue = json.loads(self.previous_sle.stock_queue or "[]")
 		self.valuation_method = get_valuation_method(self.item_code)
 		self.stock_value_difference = 0.0
-		self.qty_after_transaction = 0.0
+		self.qty_after_transaction = flt(self.previous_sle.qty_after_transaction)
 		self.build()
 
 	def build(self):
@@ -124,6 +127,7 @@ class update_entries_after(object):
 
 		bin_doc.update({
 			"actual_qty": self.qty_after_transaction
+			# "stock_value": self.stock_value
 		})
 		bin_doc.flags.via_stock_ledger_entry = True
 
@@ -142,6 +146,7 @@ class update_entries_after(object):
 			# assert
 			self.qty_after_transaction = sle.qty_after_transaction
 			self.stock_queue = [[self.qty_after_transaction]]
+			self.stock_value = flt(self.qty_after_transaction)
 		else:
 			if self.valuation_method == "Moving Average":
 				self.get_moving_average_values(sle)
@@ -151,10 +156,16 @@ class update_entries_after(object):
 				self.get_fifo_values(sle)
 				self.qty_after_transaction += flt(sle.actual_qty)
 
+		# self.stock_value = flt(self.stock_value, self.precision)
+
+		# stock_value_difference = self.stock_value - self.prev_stock_value
+		# self.prev_stock_value = self.stock_value
+
 		# update current sle
 		sle.qty_after_transaction = self.qty_after_transaction
 		# sle.stock_value = self.stock_value
 		sle.stock_queue = json.dumps(self.stock_queue)
+		# sle.stock_value_difference = stock_value_difference
 		sle.doctype="Stock Ledger Entry"
 		frappe.get_doc(sle).db_update()
 
@@ -191,7 +202,7 @@ class update_entries_after(object):
 			if not self.stock_queue:
 				self.stock_queue.append([0, 0])
 
-			self.stock_queue[-1][0] += actual_qty
+			# self.stock_queue[-1][0] += actual_qty
 
 			if self.stock_queue[-1][0] > 0:
 				self.stock_queue.append([actual_qty])
@@ -206,6 +217,7 @@ class update_entries_after(object):
 					self.stock_queue.append([0])
 				index = None
 				if index == None:
+					# new_stock_value = sum((d[0]*d[1] for d in self.stock_queue)) - qty_to_pop
 					new_stock_qty = sum((d[0] for d in self.stock_queue)) - qty_to_pop
 					break
 

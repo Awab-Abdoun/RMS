@@ -47,6 +47,7 @@ class StockEntry(StockController):
 		# self.validate_with_material_request()
 
 		self.set_actual_qty()
+		# self.calculate_rate_and_amount()
 
 	def on_submit(self):
 		self.update_stock_ledger()
@@ -222,6 +223,15 @@ class StockEntry(StockController):
 		self.set_production_order_details()
 		self.set_transfer_qty()
 		self.set_actual_qty()
+		self.calculate_rate_and_amount()
+
+	def calculate_rate_and_amount(self, force=False):
+		self.set_total_amount()
+
+	def set_total_amount(self):
+		self.total_amount = None
+		if self.purpose not in ['Manufacture', 'Repack']:
+			self.total_amount = sum([flt(item.amount) for item in self.get("items")])
 
 	def validate_bom(self):
 		for d in self.get('items'):
