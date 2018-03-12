@@ -145,10 +145,7 @@ class ProductionOrder(Document):
 		if not self.bom_no:
 				return
 
-		if self.use_multi_level_bom:
-			bom_list = frappe.get_doc("BOM", self.bom_no).traverse_tree()
-		else:
-			bom_list = [self.bom_no]
+		bom_list = [self.bom_no]
 
 		operations = frappe.db.sql("""
 			select
@@ -269,8 +266,7 @@ class ProductionOrder(Document):
 		'''set required_items for production to keep track of reserved qty'''
 		self.required_items = []
 		if self.bom_no and self.qty:
-			item_dict = get_bom_items_as_dict(self.bom_no, qty=self.qty,
-				fetch_exploded = self.use_multi_level_bom)
+			item_dict = get_bom_items_as_dict(self.bom_no, qty=self.qty)
 
 			for item in sorted(item_dict.values(), key=lambda d: d['idx']):
 				self.append('required_items', {
@@ -365,7 +361,6 @@ def make_stock_entry(production_order_id, purpose, qty=None):
 	stock_entry.production_order = production_order_id
 	stock_entry.from_bom = 1
 	stock_entry.bom_no = production_order.bom_no
-	stock_entry.use_multi_level_bom = production_order.use_multi_level_bom
 	stock_entry.fg_completed_qty = qty or (flt(production_order.qty) - flt(production_order.produced_qty))
 
 	if purpose=="Material Transfer for Manufacture":

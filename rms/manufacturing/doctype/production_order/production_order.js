@@ -10,6 +10,44 @@ frappe.ui.form.on('Production Order', {
 			'Stock Entry': 'Make Stock Entry',
 		}
 
+		// Set query for warehouses
+		frm.set_query("wip_warehouse", function(doc) {
+			return {
+				filters: {
+				}
+			}
+		});
+		
+		frm.set_query("source_warehouse", function() {
+			return {
+				filters: {
+				}
+			}
+		});
+		
+		frm.set_query("source_warehouse", "required_items", function() {
+			return {
+				filters: {
+				}
+			}
+		});
+		
+		frm.set_query("fg_warehouse", function() {
+			return {
+				filters: {
+					'is_group': 0
+				}
+			}
+		});
+		
+		frm.set_query("scrap_warehouse", function() {
+			return {
+				filters: {
+					'is_group': 0
+				}
+			}
+		});
+
 		// Set query for BOM
 		frm.set_query("bom_no", function() {
 			if (frm.doc.production_item) {
@@ -151,11 +189,11 @@ frappe.ui.form.on('Production Order', {
 		});
 	},
 
-	use_multi_level_bom: function(frm) {
-		if(frm.doc.bom_no) {
-			frm.trigger("bom_no");
-		}
-	},
+	// use_multi_level_bom: function(frm) {
+	// 	if(frm.doc.bom_no) {
+	// 		frm.trigger("bom_no");
+	// 	}
+	// },
 
 	qty: function(frm) {
 		frm.trigger('bom_no');

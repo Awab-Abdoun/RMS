@@ -48,7 +48,7 @@ class BOM(Document):
 	def on_update(self):
 		self.check_recursion()
 		self.update_stock_qty()
-		self.update_exploded_items()
+		# self.update_exploded_items()
 
 	def on_submit(self):
 		self.manage_default_bom()
@@ -204,13 +204,13 @@ class BOM(Document):
 					if b[0]:
 						bom_list.append(b[0])
 
-	def update_cost_and_exploded_items(self, bom_list=[]):
-		bom_list = self.traverse_tree(bom_list)
-		for bom in bom_list:
-			bom_obj = frappe.get_doc("BOM", bom)
-			bom_obj.on_update()
+	# def update_cost_and_exploded_items(self, bom_list=[]):
+	# 	bom_list = self.traverse_tree(bom_list)
+	# 	for bom in bom_list:
+	# 		bom_obj = frappe.get_doc("BOM", bom)
+	# 		bom_obj.on_update()
 
-		return bom_list
+	# 	return bom_list
 
 	def traverse_tree(self, bom_list=None):
 		def _get_children(bom_no):
@@ -232,64 +232,64 @@ class BOM(Document):
 		bom_list.reverse()
 		return bom_list
 
-	def update_exploded_items(self):
-		""" Update Flat BOM, following will be correct data"""
-		self.get_exploded_items()
-		self.add_exploded_items()
+	# def update_exploded_items(self):
+	# 	""" Update Flat BOM, following will be correct data"""
+	# 	self.get_exploded_items()
+	# 	self.add_exploded_items()
 
-	def get_exploded_items(self):
-		""" Get all raw materials including items from child bom"""
-		self.cur_exploded_items = {}
-		for d in self.get('items'):
-			if d.bom_no:
-				self.get_child_exploded_items(d.bom_no, d.stock_qty)
-			else:
-				self.add_to_cur_exploded_items(frappe._dict({
-					'item_code'		: d.item_code,
-					'item_name'		: d.item_name,
-					'source_warehouse': d.source_warehouse,
-					'description'	: d.description,
-					'image'			: d.image,
-				}))
+	# def get_exploded_items(self):
+	# 	""" Get all raw materials including items from child bom"""
+	# 	self.cur_exploded_items = {}
+	# 	for d in self.get('items'):
+	# 		if d.bom_no:
+	# 			self.get_child_exploded_items(d.bom_no, d.stock_qty)
+	# 		else:
+	# 			self.add_to_cur_exploded_items(frappe._dict({
+	# 				'item_code'		: d.item_code,
+	# 				'item_name'		: d.item_name,
+	# 				'source_warehouse': d.source_warehouse,
+	# 				'description'	: d.description,
+	# 				'image'			: d.image,
+	# 			}))
 
-	def add_to_cur_exploded_items(self, args):
-		if self.cur_exploded_items.get(args.item_code):
-			self.cur_exploded_items[args.item_code]["stock_qty"] += args.stock_qty
-		else:
-			self.cur_exploded_items[args.item_code] = args
+	# def add_to_cur_exploded_items(self, args):
+	# 	if self.cur_exploded_items.get(args.item_code):
+	# 		self.cur_exploded_items[args.item_code]["stock_qty"] += args.stock_qty
+	# 	else:
+	# 		self.cur_exploded_items[args.item_code] = args
 
-	def get_child_exploded_items(self, bom_no, stock_qty):
-		""" Add all items from Flat BOM of child BOM"""
-		# Did not use qty_consumed_per_unit in the query, as it leads to rounding loss
-		child_fb_items = frappe.db.sql("""select bom_item.item_code, bom_item.item_name,
-			bom_item.description, bom_item.source_warehouse,
-			bom_item.stock_qty,
-			bom_item.stock_qty / ifnull(bom.quantity, 1) as qty_consumed_per_unit
-			from `tabBOM Explosion Item` bom_item, tabBOM bom
-			where bom_item.parent = bom.name and bom.name = %s and bom.docstatus = 1""", bom_no, as_dict = 1)
+	# def get_child_exploded_items(self, bom_no, stock_qty):
+	# 	""" Add all items from Flat BOM of child BOM"""
+	# 	# Did not use qty_consumed_per_unit in the query, as it leads to rounding loss
+	# 	child_fb_items = frappe.db.sql("""select bom_item.item_code, bom_item.item_name,
+	# 		bom_item.description, bom_item.source_warehouse,
+	# 		bom_item.stock_qty,
+	# 		bom_item.stock_qty / ifnull(bom.quantity, 1) as qty_consumed_per_unit
+	# 		from `tabBOM Explosion Item` bom_item, tabBOM bom
+	# 		where bom_item.parent = bom.name and bom.name = %s and bom.docstatus = 1""", bom_no, as_dict = 1)
 
-		for d in child_fb_items:
-			self.add_to_cur_exploded_items(frappe._dict({
-				'item_code'				: d['item_code'],
-				'item_name'				: d['item_name'],
-				'source_warehouse'		: d['source_warehouse'],
-				'description'			: d['description'],
-				'stock_qty'				: d['qty_consumed_per_unit'] * stock_qty,
-			}))
+	# 	for d in child_fb_items:
+	# 		self.add_to_cur_exploded_items(frappe._dict({
+	# 			'item_code'				: d['item_code'],
+	# 			'item_name'				: d['item_name'],
+	# 			'source_warehouse'		: d['source_warehouse'],
+	# 			'description'			: d['description'],
+	# 			'stock_qty'				: d['qty_consumed_per_unit'] * stock_qty,
+	# 		}))
 
-	def add_exploded_items(self):
-		"Add items to Flat BOM table"
-		frappe.db.sql("""delete from `tabBOM Explosion Item` where parent=%s""", self.name)
-		self.set('exploded_items', [])
+	# def add_exploded_items(self):
+	# 	"Add items to Flat BOM table"
+	# 	frappe.db.sql("""delete from `tabBOM Explosion Item` where parent=%s""", self.name)
+	# 	self.set('exploded_items', [])
 
-		for d in sorted(self.cur_exploded_items, key=itemgetter(0)):
-			ch = self.append('exploded_items', {})
-			for i in self.cur_exploded_items[d].keys():
-				ch.set(i, self.cur_exploded_items[d][i])
-			ch.amount = flt(ch.stock_qty)
-			ch.qty_consumed_per_unit = flt(ch.stock_qty) / flt(self.quantity)
-			ch.docstatus = self.docstatus
-			ch.db_insert()
+	# 	for d in sorted(self.cur_exploded_items, key=itemgetter(0)):
+	# 		ch = self.append('exploded_items', {})
+	# 		for i in self.cur_exploded_items[d].keys():
+	# 			ch.set(i, self.cur_exploded_items[d][i])
+	# 		ch.amount = flt(ch.stock_qty)
+	# 		ch.qty_consumed_per_unit = flt(ch.stock_qty) / flt(self.quantity)
+	# 		ch.docstatus = self.docstatus
+	# 		ch.db_insert()
 
 	def validate_bom_links(self):
 		if not self.is_active:
@@ -314,7 +314,7 @@ def get_list_context(context):
 	context.title = _("Bill of Materials")
 	# context.introduction = _('Boms')
 
-def get_bom_items_as_dict(bom, qty=1, fetch_exploded=1, fetch_scrap_items=0):
+def get_bom_items_as_dict(bom, qty=1, fetch_scrap_items=0):
 	item_dict = {}
 
 	# Did not use qty_consumed_per_unit in the query, as it leads to rounding loss
@@ -338,12 +338,12 @@ def get_bom_items_as_dict(bom, qty=1, fetch_exploded=1, fetch_scrap_items=0):
 				group by item_code
 				order by idx"""
 
-	if fetch_exploded:
-		query = query.format(table="BOM Explosion Item",
-			where_conditions="",
-			select_columns = ", bom_item.source_warehouse, (Select idx from `tabBOM Item` where item_code = bom_item.item_code and parent = %(parent)s ) as idx")
-		items = frappe.db.sql(query, { "parent": bom, "qty": qty,	"bom": bom }, as_dict=True)
-	elif fetch_scrap_items:
+	# if fetch_exploded:
+	# 	query = query.format(table="BOM Explosion Item",
+	# 		where_conditions="",
+	# 		select_columns = ", bom_item.source_warehouse, (Select idx from `tabBOM Item` where item_code = bom_item.item_code and parent = %(parent)s ) as idx")
+	# 	items = frappe.db.sql(query, { "parent": bom, "qty": qty,	"bom": bom }, as_dict=True)
+	if fetch_scrap_items:
 		query = query.format(table="BOM Scrap Item", where_conditions="", select_columns=", bom_item.idx")
 		items = frappe.db.sql(query, { "qty": qty, "bom": bom }, as_dict=True)
 	else:
@@ -360,8 +360,8 @@ def get_bom_items_as_dict(bom, qty=1, fetch_exploded=1, fetch_scrap_items=0):
 	return item_dict
 
 @frappe.whitelist()
-def get_bom_items(bom, qty=1, fetch_exploded=1):
-	items = get_bom_items_as_dict(bom, qty, fetch_exploded).values()
+def get_bom_items(bom, qty=1):
+	items = get_bom_items_as_dict(bom, qty).values()
 	items.sort(lambda a, b: a.item_code > b.item_code and 1 or -1)
 	return items
 

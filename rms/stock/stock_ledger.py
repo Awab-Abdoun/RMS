@@ -84,6 +84,8 @@ class update_entries_after(object):
 		self.previous_sle = self.get_sle_before_datetime()
 		self.previous_sle = self.previous_sle[0] if self.previous_sle else frappe._dict()
 
+		self.qty_after_transaction = flt(self.previous_sle.qty_after_transaction)
+
 		# for key in ("qty_after_transaction", "stock_value"):
 		# 	setattr(self, key, flt(self.previous_sle.get(key)))
 
@@ -93,7 +95,6 @@ class update_entries_after(object):
 		self.stock_queue = json.loads(self.previous_sle.stock_queue or "[]")
 		self.valuation_method = get_valuation_method(self.item_code)
 		self.stock_value_difference = 0.0
-		self.qty_after_transaction = flt(self.previous_sle.qty_after_transaction)
 		self.build()
 
 	def build(self):
@@ -138,9 +139,9 @@ class update_entries_after(object):
 		# self.qty_after_transaction += flt(sle.actual_qty)
 		# self.stock_value = flt(self.qty_after_transaction)
 
-		# if not self.validate_negative_stock(sle):
-		# 	self.qty_after_transaction += flt(sle.actual_qty)
-		# 	return
+		if not self.validate_negative_stock(sle):
+			self.qty_after_transaction += flt(sle.actual_qty)
+			return
 			
 		if sle.voucher_type=="Stock Reconciliation":
 			# assert
