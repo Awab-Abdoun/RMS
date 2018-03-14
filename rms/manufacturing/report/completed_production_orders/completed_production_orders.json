@@ -7,7 +7,7 @@
  "doctype": "Report", 
  "idx": 0, 
  "is_standard": "Yes", 
- "modified": "2018-01-16 21:32:07.121972", 
+ "modified": "2018-03-13 14:23:34.301958", 
  "modified_by": "Administrator", 
  "module": "Manufacturing", 
  "name": "Completed Production Orders", 
@@ -22,6 +22,9 @@
   }, 
   {
    "role": "Manufacturing Manager"
+  }, 
+  {
+   "role": "Project Manager"
   }
  ]
 }

@@ -66,6 +66,6 @@ def get_data():
 			"icon": "fa fa-cogs",
 			"icon": "octicon octicon-tools",
 			"type": "module",
-			"hidden": 1
+			"hidden": 0
 		},
 	]

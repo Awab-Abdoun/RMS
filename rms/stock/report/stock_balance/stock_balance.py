@@ -23,7 +23,7 @@ def execute(filters=None):
 		report_data = [item, item_map[item]["item_name"],
 			item_map[item]["item_group"],
 			item_map[item]["description"], warehouse,
-			qty_dict.opening_qty,
+			# qty_dict.opening_qty,
 			qty_dict.in_qty,
 			qty_dict.out_qty,
 			qty_dict.bal_qty
@@ -42,7 +42,7 @@ def get_columns():
 		_("Item Group")+"::100",
 		_("Description")+"::140",
 		_("Warehouse")+":Link/Warehouse:100",
-		_("Opening Qty")+":Float:100",
+		# _("Opening Qty")+":Float:100",
 		_("In Qty")+":Float:80",
 		_("Out Qty")+":Float:80",
 		_("Balance Qty")+":Float:100"
@@ -110,7 +110,7 @@ def get_item_warehouse_map(filters):
 		key = (d.item_code, d.warehouse)
 		if key not in iwb_map:
 			iwb_map[key] = frappe._dict({
-				"opening_qty": 0.0,
+				# "opening_qty": 0.0,
 				"in_qty": 0.0,
 				"out_qty": 0.0,
 				"bal_qty": 0.0

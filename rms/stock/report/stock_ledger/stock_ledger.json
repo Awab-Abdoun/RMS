@@ -7,7 +7,7 @@
  "doctype": "Report", 
  "idx": 0, 
  "is_standard": "Yes", 
- "modified": "2018-01-17 16:15:01.627462", 
+ "modified": "2018-03-13 14:22:30.026284", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Stock Ledger", 
@@ -21,6 +21,12 @@
   }, 
   {
    "role": "Stock Manager"
+  }, 
+  {
+   "role": "Manufacturing Manager"
+  }, 
+  {
+   "role": "Project Manager"
   }
  ]
 }

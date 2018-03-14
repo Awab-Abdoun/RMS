@@ -7,7 +7,7 @@
  "doctype": "Report", 
  "idx": 0, 
  "is_standard": "Yes", 
- "modified": "2018-01-17 16:15:59.079164", 
+ "modified": "2018-03-13 14:22:49.112819", 
  "modified_by": "Administrator", 
  "module": "Stock", 
  "name": "Stock Balance", 
@@ -21,6 +21,12 @@
   }, 
   {
    "role": "Stock Manager"
+  }, 
+  {
+   "role": "Manufacturing Manager"
+  }, 
+  {
+   "role": "Project Manager"
   }
  ]
 }

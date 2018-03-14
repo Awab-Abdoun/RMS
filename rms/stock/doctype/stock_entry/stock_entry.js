@@ -203,7 +203,7 @@ rms.stock.StockEntry = rms.stock.StockController.extend({
 			},
 			callback: function(r) {
 				if (!r.exc) {
-					$.each(["from_bom", "bom_no", "fg_completed_qty", "use_multi_level_bom"], function(i, field) {
+					$.each(["from_bom", "bom_no", "fg_completed_qty"], function(i, field) {
 						me.frm.set_value(field, r.message[field]);
 					})
 

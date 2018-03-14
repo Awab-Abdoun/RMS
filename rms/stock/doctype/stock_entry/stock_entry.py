@@ -425,8 +425,7 @@ class StockEntry(StockController):
 		from rms.manufacturing.doctype.bom.bom import get_bom_items_as_dict
 
 		# item dict = { item_code: {qty, description, stock_uom} }
-		item_dict = get_bom_items_as_dict(self.bom_no, qty=qty,
-			fetch_exploded = self.use_multi_level_bom)
+		item_dict = get_bom_items_as_dict(self.bom_no, qty=qty)
 
 		for item in item_dict.values():
 			# if source warehouse presents in BOM set from_warehouse as bom source_warehouse
@@ -587,7 +586,6 @@ def get_production_order_details(production_order):
 	return {
 		"from_bom": 1,
 		"bom_no": production_order.bom_no,
-		"use_multi_level_bom": production_order.use_multi_level_bom,
 		"wip_warehouse": production_order.wip_warehouse,
 		"fg_warehouse": production_order.fg_warehouse,
 		"fg_completed_qty": pending_qty_to_produce
